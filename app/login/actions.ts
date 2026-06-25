@@ -3,8 +3,9 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { hashSenha, verificarSenha } from "@/lib/senha";
-import { criarSessao, logout } from "@/lib/auth";
+import { criarSessao, logout, pararVerComo } from "@/lib/auth";
 import { criarEstabelecimentoComCategorias } from "@/lib/plano-de-contas";
+import { garantirAssinatura } from "@/lib/assinatura";
 
 export type EstadoAuth = { erro?: string };
 
@@ -60,6 +61,7 @@ export async function cadastrar(
     data: { email, senhaHash: hashSenha(senha) },
   });
   await criarEstabelecimentoComCategorias(prisma, usuario.id, nome, tipo);
+  await garantirAssinatura(usuario.id); // 30 dias de cortesia ao novo cliente
 
   await criarSessao(usuario.id);
   redirect("/");
@@ -68,4 +70,10 @@ export async function cadastrar(
 export async function sair() {
   await logout();
   redirect("/login");
+}
+
+// Encerra a visualização "como cliente" e volta ao painel admin.
+export async function sairVisualizacao() {
+  await pararVerComo();
+  redirect("/admin");
 }

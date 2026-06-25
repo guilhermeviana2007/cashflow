@@ -20,6 +20,37 @@ model Usuario {
 
   estabelecimentos Estabelecimento[]
   sessoes          Sessao[]
+  assinatura       Assinatura?
+}
+
+// Assinatura do cliente (1 por usuário). Gestão manual pelo admin.
+model Assinatura {
+  id                String   @id @default(cuid())
+  usuarioId         String   @unique
+  usuario           Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  status            String   @default("ATIVA")  // "ATIVA" | "PAUSADA" | "CANCELADA"
+  plano             String   @default("MENSAL") // "MENSAL" | "TRIMESTRAL" | "ANUAL"
+  valorCentavos     Int      @default(0)
+  proximoVencimento DateTime
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  pagamentos        Pagamento[]
+}
+
+// Histórico de pagamentos registrados manualmente pelo admin.
+model Pagamento {
+  id            String     @id @default(cuid())
+  assinaturaId  String
+  assinatura    Assinatura @relation(fields: [assinaturaId], references: [id], onDelete: Cascade)
+  valorCentavos Int
+  dataPagamento DateTime   @default(now())
+  referencia    String?    // ex: "Junho/2026" ou observação
+  createdAt     DateTime   @default(now())
+
+  @@index([assinaturaId])
 }
 
 // Sessão de login. O id é o token guardado no cookie do navegador.
