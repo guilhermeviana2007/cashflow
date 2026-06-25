@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/* Tema escuro minimalista — mescla de cinzas e verdes. */
+:root {
+  --background: #0e1311;
+  --foreground: #e7ece9;
+  --card: #161c19;
+  --border: #242c27;
+  --muted: #8b968f;
+  --primary: #3ecf8e;
+  --primary-foreground: #06140d;
+  --danger: #ef7878;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-geist-sans);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, Arial, sans-serif;
+}
+
+/* Campos dos formulários de login/cadastro */
+.inp-auth {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.95rem;
+  outline: none;
+}
+.inp-auth:focus {
+  border-color: var(--primary);
+}
+
+/* Acerta o seletor de data no tema escuro */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+}

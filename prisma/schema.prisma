@@ -1,0 +1,135 @@
+// Schema do Cash Flow
+// Banco: SQLite (arquivo local, sem servidor) — fácil de evoluir para Postgres depois.
+// Obs: SQLite no Prisma não suporta enums, então usamos campos String validados na aplicação.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Dono de conta do SaaS. Faz login com email + senha.
+model Usuario {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  senhaHash String
+  createdAt DateTime @default(now())
+
+  estabelecimentos Estabelecimento[]
+  sessoes          Sessao[]
+}
+
+// Sessão de login. O id é o token guardado no cookie do navegador.
+model Sessao {
+  id        String   @id
+  usuarioId String
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  expiraEm  DateTime
+  createdAt DateTime @default(now())
+
+  @@index([usuarioId])
+}
+
+// Cada estabelecimento pertence a um usuário.
+model Estabelecimento {
+  id        String   @id @default(cuid())
+  nome      String
+  tipo      String
+  createdAt DateTime @default(now())
+
+  // Saldo inicial do caixa — base para calcular o saldo atual.
+  saldoInicialCentavos Int      @default(0)
+  saldoInicialData     DateTime?
+
+  usuarioId String
+  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  categorias      Categoria[]
+  lancamentos     Lancamento[]
+  formasPagamento FormaPagamento[]
+  custosFixos     CustoFixo[]
+
+  @@index([usuarioId])
+}
+
+// Plano de contas — classifica cada lançamento.
+model Categoria {
+  id        String @id @default(cuid())
+  nome      String
+  tipo      String  // "ENTRADA" | "SAIDA"
+  grupoDre  String  // "RECEITA_BRUTA" | "DEDUCAO" | "CMV" | "DESPESA_OPERACIONAL" | "OUTRA_RECEITA" | "OUTRA_DESPESA"
+
+  estabelecimentoId String
+  estabelecimento   Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
+
+  lancamentos Lancamento[]
+  custosFixos CustoFixo[]
+
+  @@index([estabelecimentoId])
+}
+
+// Entrada (venda/receita) ou Saída (compra/despesa) no caixa.
+model Lancamento {
+  id             String   @id @default(cuid())
+  tipo           String   // "ENTRADA" | "SAIDA"
+  descricao      String
+  valorCentavos  Int
+  taxaDescontadaCentavos Int @default(0) // taxa já calculada e descontada neste lançamento
+  data           DateTime
+  fornecedor     String?
+  formaPagamento String?  // slug da FormaPagamento (ex: "debito", "credito", "pix")
+  origem         String   @default("MANUAL") // "MANUAL" | "UPLOAD" | "WHATSAPP" | "CUSTO_FIXO"
+  status         String   @default("CONFIRMADO") // "PENDENTE" | "CONFIRMADO"
+  createdAt      DateTime @default(now())
+
+  categoriaId String?
+  categoria   Categoria? @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
+
+  custoFixoId String?
+  custoFixo   CustoFixo? @relation(fields: [custoFixoId], references: [id], onDelete: SetNull)
+
+  estabelecimentoId String
+  estabelecimento   Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
+
+  @@index([estabelecimentoId, data])
+}
+
+// Formas de pagamento com taxa configurável (Dinheiro, PIX, Cartão, iFood, etc.).
+// Slugs fixos por estabelecimento — seeded no cadastro.
+// percentualCentesimos: 320 = 3.20%
+model FormaPagamento {
+  id                   String          @id @default(cuid())
+  slug                 String          // "dinheiro" | "pix" | "debito" | "credito" | "voucher" | "ifood" | "99food" | ...
+  nome                 String          // "Dinheiro", "PIX", "Cartão de Débito", etc.
+  percentualCentesimos Int             @default(0)
+
+  estabelecimentoId    String
+  estabelecimento      Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
+
+  @@unique([estabelecimentoId, slug])
+  @@index([estabelecimentoId])
+}
+
+// Custo fixo recorrente (aluguel, energia, salário, etc.).
+// Lançamentos são gerados automaticamente todo mês no diaVencimento.
+model CustoFixo {
+  id                String   @id @default(cuid())
+  nome              String
+  valorCentavos     Int
+  diaVencimento     Int      // 1-28
+  ativo             Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  categoriaId String?
+  categoria   Categoria? @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
+
+  estabelecimentoId String
+  estabelecimento   Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
+
+  lancamentos Lancamento[]
+
+  @@index([estabelecimentoId])
+}
