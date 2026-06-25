@@ -6,28 +6,27 @@ type EstabSaldo = {
   saldoInicialData: Date | null;
 };
 
-// Saldo atual do caixa = saldo inicial + soma líquida de todos os lançamentos
-// desde a data inicial configurada. Entradas valem (valorBruto - taxa), saídas valem o valor cheio.
 export async function calcularSaldoAtual(estab: EstabSaldo): Promise<number> {
-  const lancamentos = await prisma.lancamento.findMany({
-    where: {
-      estabelecimentoId: estab.id,
-      ...(estab.saldoInicialData ? { data: { gte: estab.saldoInicialData } } : {}),
-    },
-    select: {
-      tipo: true,
-      valorCentavos: true,
-      taxaDescontadaCentavos: true,
-    },
-  });
+  const where = {
+    estabelecimentoId: estab.id,
+    ...(estab.saldoInicialData ? { data: { gte: estab.saldoInicialData } } : {}),
+  };
 
-  let saldo = estab.saldoInicialCentavos;
-  for (const l of lancamentos) {
-    if (l.tipo === "ENTRADA") {
-      saldo += l.valorCentavos - l.taxaDescontadaCentavos;
-    } else {
-      saldo -= l.valorCentavos;
-    }
-  }
-  return saldo;
+  const [entradas, saidas] = await Promise.all([
+    prisma.lancamento.aggregate({
+      where: { ...where, tipo: "ENTRADA" },
+      _sum: { valorCentavos: true, taxaDescontadaCentavos: true },
+    }),
+    prisma.lancamento.aggregate({
+      where: { ...where, tipo: "SAIDA" },
+      _sum: { valorCentavos: true },
+    }),
+  ]);
+
+  return (
+    estab.saldoInicialCentavos +
+    (entradas._sum.valorCentavos ?? 0) -
+    (entradas._sum.taxaDescontadaCentavos ?? 0) -
+    (saidas._sum.valorCentavos ?? 0)
+  );
 }

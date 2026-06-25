@@ -1,10 +1,10 @@
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { exigirUsuario } from "@/lib/auth";
 
-// Estabelecimento do usuário logado. Exige login (redireciona para /login se deslogado).
-// MVP: um estabelecimento por usuário (o primeiro). Multi-estabelecimento por usuário
-// fica para depois — o modelo já suporta.
-export async function getEstabelecimentoAtual() {
+// cache() garante que esta função consulta o banco apenas uma vez por request,
+// mesmo que layout, page e componentes a chamem separadamente.
+export const getEstabelecimentoAtual = cache(async () => {
   const usuario = await exigirUsuario();
   const estab = await prisma.estabelecimento.findFirst({
     where: { usuarioId: usuario.id },
@@ -16,4 +16,4 @@ export async function getEstabelecimentoAtual() {
     );
   }
   return estab;
-}
+});

@@ -95,6 +95,8 @@ model Lancamento {
   estabelecimento   Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
 
   @@index([estabelecimentoId, data])
+  @@index([estabelecimentoId, tipo, data])
+  @@index([categoriaId])
 }
 
 // Formas de pagamento com taxa configurável (Dinheiro, PIX, Cartão, iFood, etc.).

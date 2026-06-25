@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { randomBytes } from "node:crypto";
@@ -7,7 +8,6 @@ import { prisma } from "@/lib/prisma";
 const COOKIE = "caixafood_sessao";
 const DIAS = 30;
 
-// Cria uma sessão no banco e grava o token no cookie do navegador.
 export async function criarSessao(usuarioId: string) {
   const token = randomBytes(32).toString("hex");
   const expiraEm = new Date(Date.now() + DIAS * 24 * 60 * 60 * 1000);
@@ -23,8 +23,9 @@ export async function criarSessao(usuarioId: string) {
   });
 }
 
-// Retorna o usuário logado, ou null se não houver sessão válida.
-export async function getUsuarioAtual() {
+// cache() deduplica chamadas dentro do mesmo request — se layout e page
+// chamarem getUsuarioAtual(), o banco é consultado apenas uma vez.
+export const getUsuarioAtual = cache(async () => {
   const store = await cookies();
   const token = store.get(COOKIE)?.value;
   if (!token) return null;
@@ -35,16 +36,14 @@ export async function getUsuarioAtual() {
   });
   if (!sessao || sessao.expiraEm < new Date()) return null;
   return sessao.usuario;
-}
+});
 
-// Garante que há um usuário logado; senão, redireciona para /login.
 export async function exigirUsuario() {
   const usuario = await getUsuarioAtual();
   if (!usuario) redirect("/login");
   return usuario;
 }
 
-// Retorna true se o e-mail consta em ADMIN_EMAILS no .env.
 export function ehAdmin(email: string): boolean {
   const lista = (process.env.ADMIN_EMAILS ?? "")
     .split(",")
@@ -53,14 +52,12 @@ export function ehAdmin(email: string): boolean {
   return lista.includes(email.toLowerCase());
 }
 
-// Garante que o usuário logado é admin; senão, redireciona para /.
 export async function exigirAdmin() {
   const usuario = await getUsuarioAtual();
   if (!usuario || !ehAdmin(usuario.email)) redirect("/");
   return usuario;
 }
 
-// Encerra a sessão atual (remove do banco e apaga o cookie).
 export async function logout() {
   const store = await cookies();
   const token = store.get(COOKIE)?.value;
