@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { criarLancamento } from "@/app/lancamentos/actions";
 import { reaisParaCentavos, formatBRL } from "@/lib/format";
 
@@ -18,6 +18,7 @@ export function FormLancamento({
   const [formaSelecionada, setFormaSelecionada] = useState("");
   const [valorTexto, setValorTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const enviandoRef = useRef(false);
 
   const categoriasFiltradas = categorias.filter((c) => c.tipo === tipo);
   const hoje = new Date().toISOString().slice(0, 10);
@@ -33,6 +34,8 @@ export function FormLancamento({
   return (
     <form
       action={async (fd) => {
+        if (enviandoRef.current) return;
+        enviandoRef.current = true;
         setEnviando(true);
         await criarLancamento(fd);
       }}
@@ -160,9 +163,19 @@ export function FormLancamento({
       <button
         type="submit"
         disabled={enviando}
-        className="w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+        className="w-full rounded-lg bg-primary px-4 py-4 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center justify-center gap-2 text-base"
       >
-        {enviando ? "Salvando..." : "Salvar lançamento"}
+        {enviando ? (
+          <>
+            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+            </svg>
+            Salvando...
+          </>
+        ) : (
+          "Salvar lançamento"
+        )}
       </button>
 
       <style>{`
