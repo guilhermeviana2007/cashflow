@@ -3,7 +3,7 @@ import { prisma } from "./prisma";
 // Quantos dias antes do vencimento o aviso amarelo começa a aparecer.
 export const DIAS_AVISO = 5;
 
-export type Plano = "MENSAL" | "TRIMESTRAL" | "ANUAL";
+export type Plano = "MENSAL" | "TRIMESTRAL" | "SEMESTRAL" | "ANUAL";
 export type StatusAssinatura = "ATIVA" | "PAUSADA" | "CANCELADA";
 
 // Situação derivada (calculada), usada para avisos e badges.
@@ -12,6 +12,7 @@ export type Situacao = "EM_DIA" | "PROXIMA" | "VENCIDA" | "PAUSADA" | "CANCELADA
 export const PLANOS: { v: Plano; l: string; meses: number }[] = [
   { v: "MENSAL", l: "Mensal", meses: 1 },
   { v: "TRIMESTRAL", l: "Trimestral", meses: 3 },
+  { v: "SEMESTRAL", l: "Semestral", meses: 6 },
   { v: "ANUAL", l: "Anual", meses: 12 },
 ];
 

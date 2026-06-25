@@ -18,6 +18,13 @@ model Usuario {
   senhaHash String
   createdAt DateTime @default(now())
 
+  // Segurança / recuperação de conta
+  telefone                   String?
+  emailRecuperacao           String?
+  emailRecuperacaoVerificado Boolean   @default(false)
+  tokenVerificacao           String?
+  tokenVerificacaoExpira     DateTime?
+
   estabelecimentos Estabelecimento[]
   sessoes          Sessao[]
   assinatura       Assinatura?
@@ -77,6 +84,9 @@ model Estabelecimento {
 
   // Número WhatsApp vinculado (formato E.164 sem +, ex: 5511999999999)
   whatsappTelefone     String?
+
+  // Foto/avatar do estabelecimento (data URL base64)
+  fotoPerfil           String?
 
   usuarioId String
   usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)

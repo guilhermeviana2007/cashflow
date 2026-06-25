@@ -13,6 +13,7 @@ import {
 const PLANOS = [
   { v: "MENSAL", l: "Mensal" },
   { v: "TRIMESTRAL", l: "Trimestral" },
+  { v: "SEMESTRAL", l: "Semestral" },
   { v: "ANUAL", l: "Anual" },
 ];
 

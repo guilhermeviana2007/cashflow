@@ -12,10 +12,21 @@ const LINKS = [
   { href: "/lancamentos/importar", label: "Importar nota (IA)", icon: "🤖" },
   { href: "/custos-fixos", label: "Custos Fixos", icon: "🔄" },
   { href: "/configuracoes", label: "Configurações", icon: "⚙️" },
+  { href: "/minha-conta", label: "Minha conta", icon: "👤" },
   { href: "/suporte", label: "Suporte IA", icon: "💬" },
 ];
 
-export function Sidebar({ email, isAdmin }: { email: string; isAdmin: boolean }) {
+export function Sidebar({
+  email,
+  isAdmin,
+  nome,
+  fotoPerfil,
+}: {
+  email: string;
+  isAdmin: boolean;
+  nome: string;
+  fotoPerfil: string | null;
+}) {
   const pathname = usePathname();
 
   return (
@@ -60,9 +71,27 @@ export function Sidebar({ email, isAdmin }: { email: string; isAdmin: boolean })
 
       {/* Usuário + sair (fixado no rodapé) */}
       <div className="mt-auto border-t border-border pt-3">
-        <div className="px-2 mb-2 truncate text-xs text-muted" title={email}>
-          {email}
-        </div>
+        <Link
+          href="/minha-conta"
+          className="flex items-center gap-2 px-2 mb-2 py-1.5 rounded-lg hover:bg-background"
+        >
+          <span className="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-border bg-background flex items-center justify-center">
+            {fotoPerfil ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={fotoPerfil} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-sm font-bold text-muted">
+                {(nome || email).charAt(0).toUpperCase()}
+              </span>
+            )}
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-medium">{nome}</span>
+            <span className="block truncate text-xs text-muted" title={email}>
+              {email}
+            </span>
+          </span>
+        </Link>
         <form action={sair}>
           <button
             type="submit"

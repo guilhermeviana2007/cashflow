@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Tema escuro minimalista — mescla de cinzas e verdes. */
+/* Tema escuro minimalista — mescla de cinzas e verdes. (padrão) */
 :root {
   --background: #0e1311;
   --foreground: #e7ece9;
@@ -10,6 +10,20 @@
   --primary: #3ecf8e;
   --primary-foreground: #06140d;
   --danger: #ef7878;
+  color-scheme: dark;
+}
+
+/* Tema claro — fundo branco, verde mais fechado para contraste. */
+:root[data-tema="claro"] {
+  --background: #f6f8f7;
+  --foreground: #15201b;
+  --card: #ffffff;
+  --border: #e2e8e4;
+  --muted: #5f6b64;
+  --primary: #15a06a;
+  --primary-foreground: #ffffff;
+  --danger: #dc2626;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -48,4 +62,7 @@ body {
 /* Acerta o seletor de data no tema escuro */
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.8);
+}
+:root[data-tema="claro"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none;
 }

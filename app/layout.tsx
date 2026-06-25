@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/app/components/Sidebar";
@@ -7,6 +8,7 @@ import { BarraImpersonacao } from "@/app/components/BarraImpersonacao";
 import { AvisoAssinatura } from "@/app/components/AvisoAssinatura";
 import { ContaSuspensa } from "@/app/components/ContaSuspensa";
 import { getSessaoInfo, ehAdmin } from "@/lib/auth";
+import { getEstabelecimentoAtual } from "@/lib/estabelecimento";
 import { garantirAssinatura, calcularSituacao, type Situacao } from "@/lib/assinatura";
 
 const geistSans = Geist({
@@ -27,11 +29,13 @@ export default async function RootLayout({
 }>) {
   const { real, efetivo, impersonando } = await getSessaoInfo();
   const htmlProps = `${geistSans.variable} h-full antialiased`;
+  const tema =
+    (await cookies()).get("caixafood_tema")?.value === "claro" ? "claro" : undefined;
 
   // Não logado (login/cadastro) — sem moldura.
   if (!efetivo) {
     return (
-      <html lang="pt-BR" className={htmlProps}>
+      <html lang="pt-BR" data-tema={tema} className={htmlProps}>
         <body className="min-h-full">{children}</body>
       </html>
     );
@@ -54,7 +58,7 @@ export default async function RootLayout({
   // Bloqueio total — só quando o próprio cliente está logado (não em impersonação).
   if (!impersonando && (situacao === "PAUSADA" || situacao === "CANCELADA")) {
     return (
-      <html lang="pt-BR" className={htmlProps}>
+      <html lang="pt-BR" data-tema={tema} className={htmlProps}>
         <body className="min-h-full">
           <ContaSuspensa email={efetivo.email} cancelada={situacao === "CANCELADA"} />
         </body>
@@ -62,12 +66,19 @@ export default async function RootLayout({
     );
   }
 
+  const estab = await getEstabelecimentoAtual();
+
   return (
-    <html lang="pt-BR" className={htmlProps}>
+    <html lang="pt-BR" data-tema={tema} className={htmlProps}>
       <body className="min-h-full">
         {impersonando && <BarraImpersonacao email={efetivo.email} />}
         <div className="flex min-h-screen">
-          <Sidebar email={efetivo.email} isAdmin={ehAdmin(efetivo.email)} />
+          <Sidebar
+            email={efetivo.email}
+            isAdmin={ehAdmin(efetivo.email)}
+            nome={estab.nome}
+            fotoPerfil={estab.fotoPerfil}
+          />
           <main className="flex-1 p-4 md:p-6 lg:p-10 max-w-6xl mx-auto w-full pb-24 md:pb-10">
             {(situacao === "PROXIMA" || situacao === "VENCIDA") && proximoVencimento && (
               <AvisoAssinatura
@@ -84,7 +95,12 @@ export default async function RootLayout({
             )}
             {children}
           </main>
-          <BottomNav email={efetivo.email} isAdmin={ehAdmin(efetivo.email)} />
+          <BottomNav
+            email={efetivo.email}
+            isAdmin={ehAdmin(efetivo.email)}
+            nome={estab.nome}
+            fotoPerfil={estab.fotoPerfil}
+          />
         </div>
       </body>
     </html>
