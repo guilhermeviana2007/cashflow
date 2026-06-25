@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getEstabelecimentoAtual } from "@/lib/estabelecimento";
 import { reaisParaCentavos } from "@/lib/format";
+import { normalizarTelefone } from "@/lib/whatsapp";
 
 export async function salvarSaldoInicial(formData: FormData) {
   const estab = await getEstabelecimentoAtual();
@@ -23,6 +24,19 @@ export async function salvarSaldoInicial(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/lancamentos");
   revalidatePath("/relatorios");
+}
+
+export async function salvarWhatsapp(formData: FormData) {
+  const estab = await getEstabelecimentoAtual();
+  const raw = String(formData.get("whatsappTelefone") || "").trim();
+  const whatsappTelefone = raw ? normalizarTelefone(raw) : null;
+
+  await prisma.estabelecimento.update({
+    where: { id: estab.id },
+    data: { whatsappTelefone },
+  });
+
+  revalidatePath("/configuracoes");
 }
 
 export async function salvarTaxas(formData: FormData) {

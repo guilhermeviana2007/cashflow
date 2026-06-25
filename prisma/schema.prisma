@@ -44,6 +44,9 @@ model Estabelecimento {
   saldoInicialCentavos Int      @default(0)
   saldoInicialData     DateTime?
 
+  // Número WhatsApp vinculado (formato E.164 sem +, ex: 5511999999999)
+  whatsappTelefone     String?
+
   usuarioId String
   usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
