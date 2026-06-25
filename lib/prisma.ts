@@ -1,8 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 
-// Singleton do Prisma — evita abrir múltiplas conexões durante o hot-reload do dev.
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log:
+      process.env.NODE_ENV === "development"
+        ? [{ emit: "stdout", level: "error" }, { emit: "stdout", level: "warn" }]
+        : [],
+  });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+// Sempre salva globalmente — em serverless (Vercel), reutiliza a conexão
+// entre requests na mesma instância ao invés de abrir uma nova a cada vez.
+globalForPrisma.prisma = prisma;

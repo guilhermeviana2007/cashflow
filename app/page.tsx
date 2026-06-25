@@ -26,7 +26,8 @@ export default async function DashboardPage({
   const { id: periodoId, dias, inicio, fim } = resolverPeriodo(periodo);
   const estab = await getEstabelecimentoAtual();
 
-  await gerarCustosFixosDoMes(estab.id);
+  // Dispara em background — não bloqueia o render do dashboard
+  gerarCustosFixosDoMes(estab.id).catch(console.error);
 
   const [lancamentos, saldoAtual] = await Promise.all([
     prisma.lancamento.findMany({
