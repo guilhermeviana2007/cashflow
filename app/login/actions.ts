@@ -26,7 +26,7 @@ export async function entrar(
   }
 
   await criarSessao(usuario.id);
-  redirect("/");
+  redirect("/dashboard");
 }
 
 export async function cadastrar(
@@ -64,7 +64,7 @@ export async function cadastrar(
   await garantirAssinatura(usuario.id); // 30 dias de cortesia ao novo cliente
 
   await criarSessao(usuario.id);
-  redirect("/");
+  redirect("/dashboard");
 }
 
 export async function sair() {

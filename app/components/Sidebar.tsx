@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { sair } from "@/app/login/actions";
+import { LogoHorizontal } from "@/app/components/LogoCashFlow";
 
 const LINKS = [
-  { href: "/", label: "Dashboard", icon: "📊" },
+  { href: "/dashboard", label: "Dashboard", icon: "📊" },
   { href: "/relatorios", label: "Relatórios", icon: "📈" },
   { href: "/lancamentos", label: "Lançamentos", icon: "💸" },
   { href: "/lancamentos/novo", label: "Novo lançamento", icon: "➕" },
@@ -32,8 +33,7 @@ export function Sidebar({
   return (
     <aside className="w-60 shrink-0 border-r border-border bg-card p-4 hidden md:flex flex-col gap-1">
       <div className="px-2 py-3 mb-2">
-        <div className="text-xl font-bold text-primary">Cash Flow</div>
-        <div className="text-xs text-muted">Controle de caixa</div>
+        <LogoHorizontal />
       </div>
 
       {LINKS.map((link) => {

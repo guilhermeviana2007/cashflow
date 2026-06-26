@@ -17,9 +17,10 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Cash Flow — Controle de caixa",
+  title: "Cash Flow — Fluxo de Caixa",
   description:
     "Centralize entradas e saídas do seu estabelecimento e acompanhe seus gráficos.",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default async function RootLayout({

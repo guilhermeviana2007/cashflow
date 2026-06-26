@@ -103,9 +103,9 @@ export function BottomNav({
       <nav className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t border-border flex items-stretch md:hidden z-40">
         {/* Dashboard */}
         <Link
-          href="/"
-          data-ativo={ativo("/") || undefined}
-          className={`pill flex-1 flex flex-col items-center justify-center gap-0.5 text-xs ${ativo("/") ? "text-primary" : "text-muted"}`}
+          href="/dashboard"
+          data-ativo={ativo("/dashboard") || undefined}
+          className={`pill flex-1 flex flex-col items-center justify-center gap-0.5 text-xs ${ativo("/dashboard") ? "text-primary" : "text-muted"}`}
         >
           <span className="text-xl leading-none">⊟</span>
           Início
