@@ -60,7 +60,7 @@ export default async function LandingPage() {
             href="/cadastro"
             className="btn rounded-xl bg-primary px-8 py-3.5 font-semibold text-primary-foreground text-base hover:opacity-90"
           >
-            Criar conta grátis
+            Criar conta
           </Link>
           <Link
             href="/login"

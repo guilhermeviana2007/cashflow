@@ -39,7 +39,7 @@ export function LogoVertical({ subtitulo }: { subtitulo?: string }) {
         width={160}
         height={160}
         priority
-        className="h-auto w-auto"
+        className="h-auto w-auto rounded-3xl"
       />
       {subtitulo && (
         <p className="text-muted text-sm">{subtitulo}</p>
