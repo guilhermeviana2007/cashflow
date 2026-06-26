@@ -63,7 +63,7 @@ export function EstoqueLista({ produtos }: { produtos: Produto[] }) {
       <div className="flex justify-end mb-4">
         <button
           onClick={() => setAdicionando(true)}
-          className="rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground hover:opacity-90"
+          className="btn rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground hover:opacity-90"
         >
           + Adicionar item
         </button>
@@ -194,7 +194,7 @@ function LinhaProduto({
         <span className="text-sm text-muted w-10">{produto.unidade}</span>
         <button
           type="submit"
-          className="ml-auto h-10 rounded-lg bg-primary px-4 font-semibold text-primary-foreground hover:opacity-90"
+          className="btn ml-auto h-10 rounded-lg bg-primary px-4 font-semibold text-primary-foreground hover:opacity-90"
         >
           Salvar
         </button>
@@ -298,26 +298,12 @@ function ModalProduto({
             </button>
             <button
               type="submit"
-              className="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              className="btn flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
             >
               Salvar
             </button>
           </div>
         </form>
-
-        <style>{`
-          .inp-est {
-            width: 100%;
-            border: 1px solid var(--border);
-            background: var(--background);
-            color: var(--foreground);
-            border-radius: 0.5rem;
-            padding: 0.5rem 0.6rem;
-            font-size: 0.9rem;
-            outline: none;
-          }
-          .inp-est:focus { border-color: var(--primary); }
-        `}</style>
       </div>
     </div>
   );

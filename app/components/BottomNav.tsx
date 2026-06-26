@@ -89,7 +89,7 @@ export function BottomNav({
               <form action={sair}>
                 <button
                   type="submit"
-                  className="w-full text-left px-3 py-3 text-sm font-medium text-muted hover:text-danger rounded-xl hover:bg-background"
+                  className="btn w-full text-left px-3 py-3 text-sm font-medium text-muted hover:text-danger rounded-xl hover:bg-background"
                 >
                   ↩ Sair
                 </button>
@@ -104,7 +104,8 @@ export function BottomNav({
         {/* Dashboard */}
         <Link
           href="/"
-          className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-xs ${ativo("/") ? "text-primary" : "text-muted"}`}
+          data-ativo={ativo("/") || undefined}
+          className={`pill flex-1 flex flex-col items-center justify-center gap-0.5 text-xs ${ativo("/") ? "text-primary" : "text-muted"}`}
         >
           <span className="text-xl leading-none">⊟</span>
           Início
@@ -113,7 +114,8 @@ export function BottomNav({
         {/* Lançamentos */}
         <Link
           href="/lancamentos"
-          className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-xs ${ativo("/lancamentos") ? "text-primary" : "text-muted"}`}
+          data-ativo={ativo("/lancamentos") || undefined}
+          className={`pill flex-1 flex flex-col items-center justify-center gap-0.5 text-xs ${ativo("/lancamentos") ? "text-primary" : "text-muted"}`}
         >
           <span className="text-xl leading-none">↕</span>
           Lançamentos
@@ -124,7 +126,7 @@ export function BottomNav({
           href="/lancamentos/novo"
           className="flex-1 flex flex-col items-center justify-center gap-0.5"
         >
-          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-2xl font-bold -mt-5 shadow-lg shadow-primary/30">
+          <div className="btn w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-2xl font-bold -mt-5 shadow-lg shadow-primary/30">
             +
           </div>
           <span className="text-xs text-muted mt-0.5">Novo</span>
@@ -133,7 +135,8 @@ export function BottomNav({
         {/* Relatórios */}
         <Link
           href="/relatorios"
-          className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-xs ${ativo("/relatorios") ? "text-primary" : "text-muted"}`}
+          data-ativo={ativo("/relatorios") || undefined}
+          className={`pill flex-1 flex flex-col items-center justify-center gap-0.5 text-xs ${ativo("/relatorios") ? "text-primary" : "text-muted"}`}
         >
           <span className="text-xl leading-none">↗</span>
           Relatórios
@@ -142,7 +145,8 @@ export function BottomNav({
         {/* Menu */}
         <button
           onClick={() => setOpen(!open)}
-          className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-xs ${open ? "text-primary" : "text-muted"}`}
+          data-ativo={open || undefined}
+          className={`pill flex-1 flex flex-col items-center justify-center gap-0.5 text-xs ${open ? "text-primary" : "text-muted"}`}
         >
           <span className="text-xl leading-none">≡</span>
           Menu

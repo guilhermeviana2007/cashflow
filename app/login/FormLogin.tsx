@@ -61,7 +61,7 @@ export function FormLogin() {
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+        className="btn w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
       >
         {pending ? "Entrando..." : "Entrar"}
       </button>

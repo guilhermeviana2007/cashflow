@@ -204,7 +204,7 @@ export function MinhaConta(props: Props) {
             <button
               type="submit"
               disabled={pendPerfil}
-              className="rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              className="btn rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
               {pendPerfil ? "Salvando..." : "Salvar perfil"}
             </button>
@@ -264,7 +264,7 @@ export function MinhaConta(props: Props) {
             <button
               type="submit"
               disabled={pendSenha}
-              className="rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              className="btn rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
               {pendSenha ? "Alterando..." : "Alterar senha"}
             </button>
@@ -314,7 +314,7 @@ export function MinhaConta(props: Props) {
             <button
               type="submit"
               disabled={pendContato}
-              className="rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              className="btn rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
               {pendContato ? "Salvando..." : "Salvar"}
             </button>
@@ -342,19 +342,6 @@ export function MinhaConta(props: Props) {
         </div>
       )}
 
-      <style>{`
-        .inp-conta {
-          width: 100%;
-          border: 1px solid var(--border);
-          background: var(--background);
-          color: var(--foreground);
-          border-radius: 0.5rem;
-          padding: 0.6rem 0.75rem;
-          font-size: 0.95rem;
-          outline: none;
-        }
-        .inp-conta:focus { border-color: var(--primary); }
-      `}</style>
     </div>
   );
 }

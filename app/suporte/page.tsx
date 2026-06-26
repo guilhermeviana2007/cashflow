@@ -182,7 +182,7 @@ export default function SuportePage() {
         <button
           type="submit"
           disabled={enviando || !input.trim()}
-          className="rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-40"
+          className="btn rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
           {enviando ? "..." : "Enviar"}
         </button>

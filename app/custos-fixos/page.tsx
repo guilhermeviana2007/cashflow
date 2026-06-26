@@ -87,7 +87,7 @@ export default async function CustosFixosPage() {
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-primary px-4 py-2.5 font-semibold text-primary-foreground hover:opacity-90"
+              className="btn w-full rounded-lg bg-primary px-4 py-2.5 font-semibold text-primary-foreground hover:opacity-90"
             >
               + Adicionar custo fixo
             </button>
@@ -177,20 +177,6 @@ export default async function CustosFixosPage() {
         </div>
       </div>
 
-      <style>{`
-        .inp {
-          width: 100%;
-          border: 1px solid var(--border);
-          background: var(--background);
-          color: var(--foreground);
-          border-radius: 0.5rem;
-          padding: 0.6rem 0.75rem;
-          font-size: 0.95rem;
-          outline: none;
-        }
-        .inp:focus { border-color: var(--primary); }
-        input[type="number"].inp { -moz-appearance: textfield; }
-      `}</style>
     </div>
   );
 }

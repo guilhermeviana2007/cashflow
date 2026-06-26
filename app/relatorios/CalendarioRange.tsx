@@ -274,7 +274,7 @@ export function CalendarioRange({
                     type="button"
                     onClick={aplicar}
                     disabled={!inicio || !fim}
-                    className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-40"
+                    className="btn rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-40"
                   >
                     Aplicar
                   </button>

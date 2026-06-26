@@ -106,7 +106,7 @@ export function ImportadorNota({ categorias }: { categorias: Categoria[] }) {
             <button
               type="button"
               onClick={() => arquivo && lerNota(arquivo)}
-              className="w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:opacity-90"
+              className="btn w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:opacity-90"
             >
               Tentar ler novamente
             </button>
@@ -200,7 +200,7 @@ export function ImportadorNota({ categorias }: { categorias: Categoria[] }) {
             <button
               type="submit"
               disabled={salvando}
-              className="flex-1 rounded-lg bg-primary px-4 py-4 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center justify-center gap-2 text-base"
+              className="btn flex-1 rounded-lg bg-primary px-4 py-4 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base"
             >
               {salvando ? (
                 <>
@@ -218,19 +218,6 @@ export function ImportadorNota({ categorias }: { categorias: Categoria[] }) {
         </form>
       )}
 
-      <style>{`
-        .inp {
-          width: 100%;
-          border: 1px solid var(--border);
-          background: var(--background);
-          color: var(--foreground);
-          border-radius: 0.5rem;
-          padding: 0.6rem 0.75rem;
-          font-size: 0.95rem;
-          outline: none;
-        }
-        .inp:focus { border-color: var(--primary); }
-      `}</style>
     </div>
   );
 }

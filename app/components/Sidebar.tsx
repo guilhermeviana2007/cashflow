@@ -42,7 +42,8 @@ export function Sidebar({
           <Link
             key={link.href}
             href={link.href}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            data-ativo={ativo || undefined}
+            className={`pill flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium ${
               ativo
                 ? "bg-primary text-primary-foreground"
                 : "text-foreground hover:bg-background"
@@ -58,7 +59,8 @@ export function Sidebar({
       {isAdmin && (
         <Link
           href="/admin"
-          className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors mt-2 border border-primary/20 ${
+          data-ativo={pathname.startsWith("/admin") || undefined}
+          className={`pill flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium mt-2 border border-primary/20 ${
             pathname.startsWith("/admin")
               ? "bg-primary text-primary-foreground"
               : "text-primary hover:bg-primary/10"
@@ -95,7 +97,7 @@ export function Sidebar({
         <form action={sair}>
           <button
             type="submit"
-            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-muted hover:bg-background hover:text-danger"
+            className="btn w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-muted hover:bg-background hover:text-danger"
           >
             ↩ Sair
           </button>

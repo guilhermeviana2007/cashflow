@@ -45,7 +45,7 @@ export default async function LancamentosPage({
         </div>
         <Link
           href="/lancamentos/novo"
-          className="rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground hover:opacity-90"
+          className="btn rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground hover:opacity-90"
         >
           + Novo
         </Link>

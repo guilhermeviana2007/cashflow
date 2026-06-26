@@ -60,7 +60,8 @@ export function FormEditar({
         <button
           type="button"
           onClick={() => setTipo("ENTRADA")}
-          className={`rounded-lg border px-4 py-3 font-semibold transition-colors ${
+          data-ativo={tipo === "ENTRADA" || undefined}
+          className={`pill rounded-lg border px-4 py-3 font-semibold ${
             tipo === "ENTRADA"
               ? "border-primary bg-primary text-primary-foreground"
               : "border-border bg-card text-foreground hover:border-primary"
@@ -71,7 +72,8 @@ export function FormEditar({
         <button
           type="button"
           onClick={() => setTipo("SAIDA")}
-          className={`rounded-lg border px-4 py-3 font-semibold transition-colors ${
+          data-ativo={tipo === "SAIDA" || undefined}
+          className={`pill rounded-lg border px-4 py-3 font-semibold ${
             tipo === "SAIDA"
               ? "border-danger bg-danger text-white"
               : "border-border bg-card text-foreground hover:border-danger"
@@ -170,7 +172,7 @@ export function FormEditar({
       <button
         type="submit"
         disabled={enviando}
-        className="w-full rounded-lg bg-primary px-4 py-4 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center justify-center gap-2 text-base"
+        className="btn w-full rounded-lg bg-primary px-4 py-4 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base"
       >
         {enviando ? (
           <>
@@ -184,20 +186,6 @@ export function FormEditar({
           "Salvar alterações"
         )}
       </button>
-
-      <style>{`
-        .input {
-          width: 100%;
-          border: 1px solid var(--border);
-          background: var(--background);
-          color: var(--foreground);
-          border-radius: 0.5rem;
-          padding: 0.6rem 0.75rem;
-          font-size: 0.95rem;
-          outline: none;
-        }
-        .input:focus { border-color: var(--primary); }
-      `}</style>
     </form>
   );
 }

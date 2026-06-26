@@ -94,7 +94,8 @@ export default async function DashboardPage({
               <Link
                 key={p.id}
                 href={`/?periodo=${p.id}`}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium border ${
+                data-ativo={ativo || undefined}
+                className={`pill rounded-lg px-3 py-1.5 text-sm font-medium border ${
                   ativo
                     ? "bg-foreground text-background border-foreground"
                     : "bg-card text-muted border-border hover:border-foreground"

@@ -87,7 +87,7 @@ export default async function ConfiguracoesPage() {
 
           <button
             type="submit"
-            className="rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90"
+            className="btn rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90"
           >
             Salvar número
           </button>
@@ -163,7 +163,7 @@ export default async function ConfiguracoesPage() {
 
           <button
             type="submit"
-            className="rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90"
+            className="btn rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90"
           >
             Salvar saldo inicial
           </button>
@@ -206,27 +206,13 @@ export default async function ConfiguracoesPage() {
 
           <button
             type="submit"
-            className="rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90"
+            className="btn rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90"
           >
             Salvar taxas
           </button>
         </form>
       </section>
 
-      <style>{`
-        .inp {
-          width: 100%;
-          border: 1px solid var(--border);
-          background: var(--background);
-          color: var(--foreground);
-          border-radius: 0.5rem;
-          padding: 0.6rem 0.75rem;
-          font-size: 0.95rem;
-          outline: none;
-        }
-        .inp:focus { border-color: var(--primary); }
-        input[type="date"].inp { color-scheme: dark; }
-      `}</style>
     </div>
   );
 }

@@ -29,7 +29,7 @@ export function ContaSuspensa({
 
         <a
           href="https://wa.me/"
-          className="block w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:opacity-90 mb-3"
+          className="btn block w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:opacity-90 mb-3"
         >
           Falar com o suporte
         </a>

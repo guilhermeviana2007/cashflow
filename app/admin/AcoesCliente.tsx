@@ -186,28 +186,13 @@ export function AcoesCliente(props: Props) {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                  className="btn flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
                 >
                   Salvar
                 </button>
               </div>
             </form>
           </div>
-
-          <style>{`
-            .inp-admin {
-              width: 100%;
-              border: 1px solid var(--border);
-              background: var(--background);
-              color: var(--foreground);
-              border-radius: 0.5rem;
-              padding: 0.5rem 0.6rem;
-              font-size: 0.9rem;
-              outline: none;
-            }
-            .inp-admin:focus { border-color: var(--primary); }
-            input[type="date"].inp-admin { color-scheme: dark; }
-          `}</style>
         </div>
       )}
     </>
