@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { extrairNotaDaImagem } from "./actions";
 import { criarLancamento } from "@/app/lancamentos/actions";
 import type { NotaExtraida } from "@/lib/anthropic";
@@ -14,29 +14,7 @@ export function ImportadorNota({ categorias }: { categorias: Categoria[] }) {
   const [erro, setErro] = useState<string | null>(null);
   const [dados, setDados] = useState<NotaExtraida | null>(null);
   const [salvando, setSalvando] = useState(false);
-
-  const [cameraAberta, setCameraAberta] = useState(false);
-  const [cameraErro, setCameraErro] = useState<string | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
   const enviandoRef = useRef(false);
-
-  // Liga o stream da câmera ao <video> quando ela abre.
-  useEffect(() => {
-    if (cameraAberta && videoRef.current && streamRef.current) {
-      videoRef.current.srcObject = streamRef.current;
-    }
-  }, [cameraAberta]);
-
-  // Garante que a câmera é desligada ao sair da tela.
-  useEffect(() => {
-    return () => pararStream();
-  }, []);
-
-  function pararStream() {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    streamRef.current = null;
-  }
 
   function definirArquivo(f: File) {
     if (preview) URL.revokeObjectURL(preview);
@@ -45,55 +23,13 @@ export function ImportadorNota({ categorias }: { categorias: Categoria[] }) {
     setErro(null);
   }
 
-  function aoEscolherArquivo(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (f) definirArquivo(f);
-  }
-
-  async function abrirCamera() {
-    setCameraErro(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-        audio: false,
-      });
-      streamRef.current = stream;
-      setCameraAberta(true);
-    } catch {
-      setCameraErro(
-        "Não consegui acessar a câmera. Permita o acesso no navegador ou use o envio de arquivo."
-      );
-    }
-  }
-
-  function fecharCamera() {
-    pararStream();
-    setCameraAberta(false);
-  }
-
-  function capturar() {
-    const v = videoRef.current;
-    if (!v) return;
-    const canvas = document.createElement("canvas");
-    canvas.width = v.videoWidth;
-    canvas.height = v.videoHeight;
-    canvas.getContext("2d")?.drawImage(v, 0, 0);
-    canvas.toBlob(
-      (blob) => {
-        if (blob) definirArquivo(new File([blob], "nota.jpg", { type: "image/jpeg" }));
-        fecharCamera();
-      },
-      "image/jpeg",
-      0.9
-    );
-  }
-
-  async function lerNota() {
-    if (!arquivo) return;
+  // Lê a nota imediatamente após a foto ser tirada/escolhida — uma única ação,
+  // sem segurar câmera ao vivo na memória (evita o recarregamento no celular).
+  async function lerNota(f: File) {
     setErro(null);
     setFase("extraindo");
     const fd = new FormData();
-    fd.append("imagem", arquivo);
+    fd.append("imagem", f);
     const resultado = await extrairNotaDaImagem(fd);
     if (resultado.ok) {
       setDados(resultado.dados);
@@ -102,6 +38,13 @@ export function ImportadorNota({ categorias }: { categorias: Categoria[] }) {
       setErro(resultado.mensagem);
       setFase("upload");
     }
+  }
+
+  function aoEscolherArquivo(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    definirArquivo(f);
+    lerNota(f);
   }
 
   const catSugeridaId =
@@ -113,87 +56,60 @@ export function ImportadorNota({ categorias }: { categorias: Categoria[] }) {
       {/* Etapa 1: captura / upload */}
       {fase !== "confirmar" && (
         <div className="space-y-4">
-          {cameraAberta ? (
-            <div className="space-y-3">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full rounded-lg border border-border bg-black"
+          {/* Botão único: no celular abre a câmera; no PC abre o seletor de arquivo */}
+          <label className="block">
+            <span className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 px-4 py-8 text-center cursor-pointer hover:bg-primary/10">
+              <span className="text-3xl">📸</span>
+              <span className="font-semibold text-primary">Tirar foto da nota</span>
+              <span className="text-xs text-muted">
+                Toque para abrir a câmera (ou escolher uma imagem)
+              </span>
+            </span>
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              capture="environment"
+              onChange={aoEscolherArquivo}
+              disabled={fase === "extraindo"}
+              className="hidden"
+            />
+          </label>
+
+          {preview && (
+            <div className="relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={preview}
+                alt="Pré-visualização da nota"
+                className="max-h-72 w-full object-contain rounded-lg border border-border"
               />
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={fecharCamera}
-                  className="rounded-lg border border-border px-4 py-3 font-medium text-muted hover:bg-card"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={capturar}
-                  className="flex-1 rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:opacity-90"
-                >
-                  📸 Capturar
-                </button>
-              </div>
+              {fase === "extraindo" && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-lg bg-black/60 text-white">
+                  <svg className="animate-spin h-6 w-6" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                  </svg>
+                  <span className="font-medium">🤖 Lendo a nota com IA...</span>
+                </div>
+              )}
             </div>
-          ) : (
-            <>
-              <div className="flex flex-col gap-3">
-                <button
-                  type="button"
-                  onClick={abrirCamera}
-                  className="rounded-lg border border-primary/50 bg-primary/10 px-4 py-4 font-semibold text-primary hover:bg-primary/15"
-                >
-                  📷 Tirar foto da nota
-                </button>
+          )}
 
-                <label className="block">
-                  <span className="mb-2 block text-center text-xs text-muted">
-                    ou envie um arquivo
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    capture="environment"
-                    onChange={aoEscolherArquivo}
-                    className="block w-full text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-card file:px-4 file:py-2 file:text-foreground file:font-medium"
-                  />
-                </label>
-              </div>
+          {erro && (
+            <div className="rounded-lg border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
+              {erro}
+            </div>
+          )}
 
-              {cameraErro && (
-                <div className="rounded-lg border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
-                  {cameraErro}
-                </div>
-              )}
-
-              {preview && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={preview}
-                  alt="Pré-visualização da nota"
-                  className="max-h-72 rounded-lg border border-border"
-                />
-              )}
-
-              {erro && (
-                <div className="rounded-lg border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
-                  {erro}
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={lerNota}
-                disabled={!arquivo || fase === "extraindo"}
-                className="w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-40"
-              >
-                {fase === "extraindo" ? "🤖 Lendo a nota com IA..." : "Ler nota com IA"}
-              </button>
-            </>
+          {/* Reprocessar caso a leitura tenha falhado mas a foto continue válida */}
+          {arquivo && fase === "upload" && erro && (
+            <button
+              type="button"
+              onClick={() => arquivo && lerNota(arquivo)}
+              className="w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:opacity-90"
+            >
+              Tentar ler novamente
+            </button>
           )}
         </div>
       )}

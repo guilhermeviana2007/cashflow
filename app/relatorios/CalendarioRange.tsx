@@ -37,6 +37,46 @@ function celulas(ano: number, mes: number): (Date | null)[] {
   return arr;
 }
 
+type Atalho = { label: string; de: Date; ate: Date };
+
+function construirAtalhos(): Atalho[] {
+  const hoje = new Date();
+  const y = hoje.getFullYear();
+  const m = hoje.getMonth();
+
+  const ontem = new Date(hoje);
+  ontem.setDate(hoje.getDate() - 1);
+  const domSemana = new Date(hoje);
+  domSemana.setDate(hoje.getDate() - hoje.getDay());
+  const domSemPassada = new Date(domSemana);
+  domSemPassada.setDate(domSemana.getDate() - 7);
+  const sabSemPassada = new Date(domSemana);
+  sabSemPassada.setDate(domSemana.getDate() - 1);
+
+  const lista: Atalho[] = [
+    { label: "Hoje", de: hoje, ate: hoje },
+    { label: "Ontem", de: ontem, ate: ontem },
+    { label: "Esta semana", de: domSemana, ate: hoje },
+    { label: "Semana passada", de: domSemPassada, ate: sabSemPassada },
+    { label: "Este mês", de: new Date(y, m, 1), ate: hoje },
+    { label: "Mês passado", de: new Date(y, m - 1, 1), ate: new Date(y, m, 0) },
+  ];
+  for (let i = 2; i <= 4; i++) {
+    const ini = new Date(y, m - i, 1);
+    lista.push({
+      label: `${MESES[ini.getMonth()]}/${ini.getFullYear()}`,
+      de: ini,
+      ate: new Date(y, m - i + 1, 0),
+    });
+  }
+  for (const n of [2, 3, 6]) {
+    const ini = new Date(hoje);
+    ini.setMonth(ini.getMonth() - n);
+    lista.push({ label: `Últimos ${n} meses`, de: ini, ate: hoje });
+  }
+  return lista;
+}
+
 export function CalendarioRange({
   deInicial,
   ateInicial,
@@ -57,6 +97,13 @@ export function CalendarioRange({
     new Date(base0.getFullYear(), base0.getMonth(), 1)
   );
 
+  const atalhos = construirAtalhos();
+
+  function irPara(de: Date, ate: Date) {
+    setAberto(false);
+    router.push(`/relatorios?de=${iso(de)}&ate=${iso(ate)}`);
+  }
+
   function clicar(dia: Date) {
     if (!inicio || (inicio && fim)) {
       setInicio(dia);
@@ -70,11 +117,9 @@ export function CalendarioRange({
 
   function aplicar() {
     if (!inicio || !fim) return;
-    setAberto(false);
-    router.push(`/relatorios?de=${iso(inicio)}&ate=${iso(fim)}`);
+    irPara(inicio, fim);
   }
 
-  // Limites de destaque, com prévia ao passar o mouse.
   const ref =
     fim ?? (inicio && hover && chave(hover) >= chave(inicio) ? hover : null);
 
@@ -162,64 +207,78 @@ export function CalendarioRange({
         <>
           <div className="fixed inset-0 z-40" onClick={() => setAberto(false)} />
           <div
-            className="absolute left-0 z-50 mt-2 rounded-xl border border-border bg-card p-4 shadow-2xl w-[19rem] sm:w-[40rem]"
+            className="absolute left-0 z-50 mt-2 flex rounded-xl border border-border bg-card p-3 shadow-2xl w-[21rem] sm:w-[46rem]"
             onMouseLeave={() => setHover(null)}
           >
-            {/* Navegação */}
-            <div className="flex items-center justify-between mb-2">
-              <button
-                type="button"
-                onClick={() =>
-                  setMesBase(new Date(mesBase.getFullYear(), mesBase.getMonth() - 1, 1))
-                }
-                className="h-8 w-8 rounded-lg text-muted hover:bg-background text-lg leading-none"
-              >
-                ‹
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setMesBase(new Date(mesBase.getFullYear(), mesBase.getMonth() + 1, 1))
-                }
-                className="h-8 w-8 rounded-lg text-muted hover:bg-background text-lg leading-none"
-              >
-                ›
-              </button>
+            {/* Atalhos */}
+            <div className="w-28 sm:w-40 shrink-0 overflow-y-auto max-h-[320px] border-r border-border pr-2 mr-3">
+              {atalhos.map((a) => (
+                <button
+                  key={a.label}
+                  type="button"
+                  onClick={() => irPara(a.de, a.ate)}
+                  className="block w-full text-left text-sm text-primary hover:bg-background rounded px-2 py-1.5"
+                >
+                  {a.label}
+                </button>
+              ))}
             </div>
 
-            {/* Meses */}
-            <div className="flex gap-6">
-              <Mes ano={mesBase.getFullYear()} mes={mesBase.getMonth()} />
-              <div className="hidden sm:block w-full">
-                <Mes ano={proximo.getFullYear()} mes={proximo.getMonth()} />
+            {/* Calendário */}
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setMesBase(new Date(mesBase.getFullYear(), mesBase.getMonth() - 1, 1))
+                  }
+                  className="h-8 w-8 rounded-lg text-muted hover:bg-background text-lg leading-none"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setMesBase(new Date(mesBase.getFullYear(), mesBase.getMonth() + 1, 1))
+                  }
+                  className="h-8 w-8 rounded-lg text-muted hover:bg-background text-lg leading-none"
+                >
+                  ›
+                </button>
               </div>
-            </div>
 
-            {/* Rodapé */}
-            <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
-              <span className="text-xs text-muted">
-                {inicio && !fim
-                  ? "Agora escolha a data final"
-                  : inicio && fim
-                    ? `${fmt(inicio)} até ${fmt(fim)}`
-                    : "Escolha a data inicial"}
-              </span>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setAberto(false)}
-                  className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted hover:bg-background"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={aplicar}
-                  disabled={!inicio || !fim}
-                  className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-40"
-                >
-                  Aplicar
-                </button>
+              <div className="flex gap-6">
+                <Mes ano={mesBase.getFullYear()} mes={mesBase.getMonth()} />
+                <div className="hidden sm:block w-full">
+                  <Mes ano={proximo.getFullYear()} mes={proximo.getMonth()} />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
+                <span className="text-xs text-muted">
+                  {inicio && !fim
+                    ? "Agora escolha a data final"
+                    : inicio && fim
+                      ? `${fmt(inicio)} até ${fmt(fim)}`
+                      : "Escolha a data inicial"}
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAberto(false)}
+                    className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted hover:bg-background"
+                  >
+                    Fechar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={aplicar}
+                    disabled={!inicio || !fim}
+                    className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-40"
+                  >
+                    Aplicar
+                  </button>
+                </div>
               </div>
             </div>
           </div>

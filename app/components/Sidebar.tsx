@@ -9,7 +9,7 @@ const LINKS = [
   { href: "/relatorios", label: "Relatórios", icon: "📈" },
   { href: "/lancamentos", label: "Lançamentos", icon: "💸" },
   { href: "/lancamentos/novo", label: "Novo lançamento", icon: "➕" },
-  { href: "/lancamentos/importar", label: "Importar nota (IA)", icon: "🤖" },
+  { href: "/estoque", label: "Estoque", icon: "📦" },
   { href: "/custos-fixos", label: "Custos Fixos", icon: "🔄" },
   { href: "/configuracoes", label: "Configurações", icon: "⚙️" },
   { href: "/minha-conta", label: "Minha conta", icon: "👤" },

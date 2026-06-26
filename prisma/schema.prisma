@@ -95,6 +95,7 @@ model Estabelecimento {
   lancamentos     Lancamento[]
   formasPagamento FormaPagamento[]
   custosFixos     CustoFixo[]
+  produtosEstoque ProdutoEstoque[]
 
   @@index([usuarioId])
 }
@@ -156,6 +157,24 @@ model FormaPagamento {
   estabelecimento      Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
 
   @@unique([estabelecimentoId, slug])
+  @@index([estabelecimentoId])
+}
+
+// Item de estoque: produto industrializado ou insumo. Contagem feita
+// diariamente pelo usuário; avisa quando fica abaixo do mínimo ideal.
+model ProdutoEstoque {
+  id              String   @id @default(cuid())
+  nome            String
+  tipo            String   // "INDUSTRIALIZADO" | "INSUMO"
+  unidade         String   @default("un") // un, kg, L, cx, pct...
+  quantidadeAtual Float    @default(0)
+  quantidadeIdeal Float    @default(0) // mínimo ideal para o aviso
+  createdAt       DateTime @default(now())
+  atualizadoEm    DateTime @updatedAt
+
+  estabelecimentoId String
+  estabelecimento   Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
+
   @@index([estabelecimentoId])
 }
 

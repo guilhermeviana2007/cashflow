@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getEstabelecimentoAtual } from "@/lib/estabelecimento";
-import { FormLancamento } from "./FormLancamento";
+import { NovoLancamento } from "./NovoLancamento";
 
 export default async function NovoLancamentoPage() {
   const estab = await getEstabelecimentoAtual();
@@ -21,8 +21,8 @@ export default async function NovoLancamentoPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-1">Novo lançamento</h1>
-      <p className="text-muted mb-6">Registre uma entrada ou saída do caixa.</p>
-      <FormLancamento categorias={categorias} formasPagamento={formasPagamento} />
+      <p className="text-muted mb-6">Registre manualmente ou por foto da nota.</p>
+      <NovoLancamento categorias={categorias} formasPagamento={formasPagamento} />
     </div>
   );
 }
