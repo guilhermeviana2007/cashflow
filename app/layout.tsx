@@ -56,12 +56,12 @@ export default async function RootLayout({
     proximoVencimento = assinatura.proximoVencimento;
   }
 
-  // Bloqueio total — só quando o próprio cliente está logado (não em impersonação).
-  if (!impersonando && (situacao === "PAUSADA" || situacao === "CANCELADA")) {
+  // Bloqueio total — conta vencida, pausada ou cancelada (só para o próprio cliente, não admin).
+  if (!impersonando && (situacao === "VENCIDA" || situacao === "PAUSADA" || situacao === "CANCELADA")) {
     return (
       <html lang="pt-BR" data-tema={tema} className={htmlProps}>
         <body className="min-h-full">
-          <ContaSuspensa email={efetivo.email} cancelada={situacao === "CANCELADA"} />
+          <ContaSuspensa email={efetivo.email} situacao={situacao} />
         </body>
       </html>
     );
@@ -81,17 +81,18 @@ export default async function RootLayout({
             fotoPerfil={estab.fotoPerfil}
           />
           <main className="flex-1 p-4 md:p-6 lg:p-10 max-w-6xl mx-auto w-full pb-24 md:pb-10">
-            {(situacao === "PROXIMA" || situacao === "VENCIDA") && proximoVencimento && (
+            {situacao === "PROXIMA" && proximoVencimento && (
               <AvisoAssinatura
                 situacao={situacao}
                 dias={dias}
                 proximoVencimento={proximoVencimento}
               />
             )}
-            {impersonando && (situacao === "PAUSADA" || situacao === "CANCELADA") && (
+            {impersonando && (situacao === "VENCIDA" || situacao === "PAUSADA" || situacao === "CANCELADA") && (
               <div className="mb-5 rounded-xl border-2 border-danger bg-danger/10 p-4 text-sm font-semibold text-danger">
-                🔒 Esta conta está {situacao === "CANCELADA" ? "cancelada" : "pausada"} — o
-                cliente não consegue acessar o sistema.
+                🔒 Esta conta está{" "}
+                {situacao === "CANCELADA" ? "cancelada" : situacao === "PAUSADA" ? "pausada" : "com mensalidade vencida"}{" "}
+                — o cliente não consegue acessar o sistema.
               </div>
             )}
             {children}

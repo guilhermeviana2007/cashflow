@@ -1,26 +1,43 @@
 import { sair } from "@/app/login/actions";
 
-// Tela cheia exibida quando a assinatura do cliente está PAUSADA ou CANCELADA.
-// Substitui todo o conteúdo do app — sem acesso até regularizar.
+type Situacao = "PAUSADA" | "CANCELADA" | "VENCIDA";
+
+const CONTEUDO: Record<Situacao, { icone: string; titulo: string; descricao: string }> = {
+  VENCIDA: {
+    icone: "📅",
+    titulo: "Mensalidade vencida",
+    descricao:
+      "Sua assinatura venceu e o acesso foi suspenso automaticamente. Regularize o pagamento com o suporte para retomar o uso do sistema.",
+  },
+  PAUSADA: {
+    icone: "🔒",
+    titulo: "Conta suspensa",
+    descricao:
+      "Seu acesso está temporariamente suspenso. Regularize com o suporte para voltar a usar o sistema.",
+  },
+  CANCELADA: {
+    icone: "🔒",
+    titulo: "Conta cancelada",
+    descricao:
+      "Sua assinatura foi cancelada. Seus dados estão guardados — fale com o suporte para reativar a conta.",
+  },
+};
+
 export function ContaSuspensa({
   email,
-  cancelada,
+  situacao,
 }: {
   email: string;
-  cancelada?: boolean;
+  situacao: Situacao;
 }) {
+  const { icone, titulo, descricao } = CONTEUDO[situacao];
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-md text-center">
-        <div className="text-5xl mb-4">🔒</div>
-        <h1 className="text-2xl font-bold mb-2">
-          {cancelada ? "Conta cancelada" : "Conta suspensa"}
-        </h1>
-        <p className="text-muted mb-6">
-          {cancelada
-            ? "Sua assinatura foi cancelada. Seus dados estão guardados — fale com o suporte para reativar a conta."
-            : "Seu acesso está temporariamente suspenso, geralmente por pagamento pendente. Regularize com o suporte para voltar a usar o sistema."}
-        </p>
+        <div className="text-5xl mb-4">{icone}</div>
+        <h1 className="text-2xl font-bold mb-2">{titulo}</h1>
+        <p className="text-muted mb-6">{descricao}</p>
 
         <div className="rounded-xl border border-border bg-card p-4 mb-6 text-sm">
           <div className="text-muted">Conta</div>
