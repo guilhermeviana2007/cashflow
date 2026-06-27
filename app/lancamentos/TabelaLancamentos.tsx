@@ -45,11 +45,11 @@ export function TabelaLancamentos({ lancamentos: inicial }: { lancamentos: Lanca
     <table className="w-full text-sm">
       <thead className="bg-background text-muted">
         <tr>
-          <th className="text-left font-medium px-4 py-3">Data</th>
-          <th className="text-left font-medium px-4 py-3">Descrição</th>
-          <th className="text-left font-medium px-4 py-3 hidden sm:table-cell">Categoria</th>
-          <th className="text-right font-medium px-4 py-3">Valor</th>
-          <th className="px-4 py-3"></th>
+          <th className="text-left font-medium px-2 sm:px-4 py-3">Data</th>
+          <th className="text-left font-medium px-2 sm:px-4 py-3">Descrição</th>
+          <th className="text-left font-medium px-2 sm:px-4 py-3 hidden sm:table-cell">Categoria</th>
+          <th className="text-right font-medium px-2 sm:px-4 py-3">Valor</th>
+          <th className="px-2 sm:px-4 py-3"></th>
         </tr>
       </thead>
       <tbody>
@@ -60,19 +60,19 @@ export function TabelaLancamentos({ lancamentos: inicial }: { lancamentos: Lanca
               : l.valorCentavos;
           return (
             <tr key={l.id} className="border-t border-border">
-              <td className="px-4 py-3 whitespace-nowrap text-muted">{l.dataFormatada}</td>
-              <td className="px-4 py-3">
+              <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-muted">{l.dataFormatada}</td>
+              <td className="px-2 sm:px-4 py-3">
                 <span className={l.tipo === "ENTRADA" ? "text-primary" : "text-danger"}>
                   {l.tipo === "ENTRADA" ? "↑" : "↓"}
                 </span>{" "}
                 {l.descricao}
                 {l.fornecedor && <span className="text-muted"> · {l.fornecedor}</span>}
               </td>
-              <td className="px-4 py-3 hidden sm:table-cell text-muted">
+              <td className="px-2 sm:px-4 py-3 hidden sm:table-cell text-muted">
                 {l.categoriaNome ?? "—"}
               </td>
               <td
-                className={`px-4 py-3 text-right font-medium ${
+                className={`px-2 sm:px-4 py-3 text-right font-medium whitespace-nowrap tabular-nums ${
                   l.tipo === "ENTRADA" ? "text-primary" : "text-danger"
                 }`}
               >
@@ -85,7 +85,7 @@ export function TabelaLancamentos({ lancamentos: inicial }: { lancamentos: Lanca
                   </div>
                 )}
               </td>
-              <td className="px-4 py-3 text-right">
+              <td className="px-2 sm:px-4 py-3 text-right">
                 <div className="flex items-center justify-end gap-3">
                   <Link
                     href={`/lancamentos/${l.id}/editar`}

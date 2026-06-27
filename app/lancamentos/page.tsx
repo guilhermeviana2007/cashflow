@@ -38,14 +38,14 @@ export default async function LancamentosPage({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Lançamentos</h1>
-          <p className="text-muted">Histórico de entradas e saídas.</p>
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold">Lançamentos</h1>
+          <p className="text-sm text-muted">Histórico de entradas e saídas.</p>
         </div>
         <Link
           href="/lancamentos/novo"
-          className="btn rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground hover:opacity-90"
+          className="btn shrink-0 rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground hover:opacity-90"
         >
           + Novo
         </Link>
@@ -53,16 +53,16 @@ export default async function LancamentosPage({
 
       {/* Saldo atual do caixa */}
       <div
-        className={`rounded-xl border p-4 mb-4 flex items-center justify-between ${
+        className={`rounded-xl border p-4 mb-4 flex items-center justify-between gap-3 ${
           saldoAtual >= 0
             ? "border-primary/30 bg-primary/5"
             : "border-danger/30 bg-danger/5"
         }`}
       >
-        <div>
+        <div className="min-w-0">
           <div className="text-xs text-muted mb-0.5">Saldo atual do caixa</div>
           <div
-            className={`text-2xl font-bold ${
+            className={`text-2xl font-bold tabular-nums break-words ${
               saldoAtual >= 0 ? "text-primary" : "text-danger"
             }`}
           >
@@ -70,7 +70,7 @@ export default async function LancamentosPage({
           </div>
         </div>
         {estab.saldoInicialData && (
-          <div className="text-xs text-muted text-right">
+          <div className="shrink-0 text-xs text-muted text-right">
             desde {formatData(estab.saldoInicialData)}
           </div>
         )}
@@ -84,7 +84,7 @@ export default async function LancamentosPage({
       </div>
 
       {/* Resumo do filtro atual */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
         <Resumo titulo="Entradas líq." valor={entradas} cor="text-primary" />
         <Resumo titulo="Saídas" valor={saidas} cor="text-danger" />
         <Resumo titulo="Resultado" valor={entradas - saidas} cor="text-foreground" />
@@ -144,9 +144,15 @@ function Resumo({
   cor: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <div className="text-xs text-muted mb-1">{titulo}</div>
-      <div className={`text-xl font-bold ${cor}`}>{formatBRL(valor)}</div>
+    <div className="rounded-xl border border-border bg-card p-3 sm:p-4 min-w-0">
+      <div className="text-[11px] sm:text-xs text-muted mb-1 leading-tight truncate">
+        {titulo}
+      </div>
+      <div
+        className={`text-base sm:text-xl font-bold leading-tight tabular-nums break-words ${cor}`}
+      >
+        {formatBRL(valor)}
+      </div>
     </div>
   );
 }
