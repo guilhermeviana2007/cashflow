@@ -122,3 +122,15 @@ export async function excluirLancamento(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/lancamentos");
 }
+
+export async function excluirLancamentoById(id: string) {
+  const estab = await getEstabelecimentoAtual();
+  if (!id) return;
+
+  await prisma.lancamento.deleteMany({
+    where: { id, estabelecimentoId: estab.id },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/lancamentos");
+}

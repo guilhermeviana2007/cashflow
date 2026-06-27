@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getEstabelecimentoAtual } from "@/lib/estabelecimento";
 import { formatBRL, formatData } from "@/lib/format";
 import { calcularSaldoAtual } from "@/lib/saldo";
-import { excluirLancamento } from "./actions";
+import { TabelaLancamentos } from "./TabelaLancamentos";
 
 export default async function LancamentosPage({
   searchParams,
@@ -92,94 +92,18 @@ export default async function LancamentosPage({
 
       {/* Tabela */}
       <div className="rounded-xl border border-border bg-card overflow-hidden">
-        {lancamentos.length === 0 ? (
-          <div className="p-10 text-center text-muted">
-            Nenhum lançamento ainda.{" "}
-            <Link href="/lancamentos/novo" className="text-primary underline">
-              Criar o primeiro
-            </Link>
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-background text-muted">
-              <tr>
-                <th className="text-left font-medium px-4 py-3">Data</th>
-                <th className="text-left font-medium px-4 py-3">Descrição</th>
-                <th className="text-left font-medium px-4 py-3 hidden sm:table-cell">
-                  Categoria
-                </th>
-                <th className="text-right font-medium px-4 py-3">Valor</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {lancamentos.map((l) => {
-                const valorEfetivo =
-                  l.tipo === "ENTRADA"
-                    ? l.valorCentavos - l.taxaDescontadaCentavos
-                    : l.valorCentavos;
-                return (
-                  <tr key={l.id} className="border-t border-border">
-                    <td className="px-4 py-3 whitespace-nowrap text-muted">
-                      {formatData(l.data)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={
-                          l.tipo === "ENTRADA" ? "text-primary" : "text-danger"
-                        }
-                      >
-                        {l.tipo === "ENTRADA" ? "↑" : "↓"}
-                      </span>{" "}
-                      {l.descricao}
-                      {l.fornecedor && (
-                        <span className="text-muted"> · {l.fornecedor}</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 hidden sm:table-cell text-muted">
-                      {l.categoria?.nome ?? "—"}
-                    </td>
-                    <td
-                      className={`px-4 py-3 text-right font-medium ${
-                        l.tipo === "ENTRADA" ? "text-primary" : "text-danger"
-                      }`}
-                    >
-                      {l.tipo === "ENTRADA" ? "+" : "−"}
-                      {formatBRL(valorEfetivo)}
-                      {l.taxaDescontadaCentavos > 0 && (
-                        <div className="text-xs text-muted font-normal leading-tight mt-0.5">
-                          bruto {formatBRL(l.valorCentavos)} · taxa −
-                          {formatBRL(l.taxaDescontadaCentavos)}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-3">
-                        <Link
-                          href={`/lancamentos/${l.id}/editar`}
-                          className="text-muted hover:text-primary"
-                          title="Editar"
-                        >
-                          ✎
-                        </Link>
-                        <form action={excluirLancamento}>
-                          <input type="hidden" name="id" value={l.id} />
-                          <button
-                            type="submit"
-                            className="text-muted hover:text-danger"
-                            title="Excluir"
-                          >
-                            ✕
-                          </button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+        <TabelaLancamentos
+          lancamentos={lancamentos.map((l) => ({
+            id: l.id,
+            tipo: l.tipo as "ENTRADA" | "SAIDA",
+            descricao: l.descricao,
+            fornecedor: l.fornecedor,
+            valorCentavos: l.valorCentavos,
+            taxaDescontadaCentavos: l.taxaDescontadaCentavos,
+            dataFormatada: formatData(l.data),
+            categoriaNome: l.categoria?.nome ?? null,
+          }))}
+        />
       </div>
     </div>
   );

@@ -252,17 +252,15 @@ function ModalProduto({
             </label>
             <label className="block">
               <span className="mb-1 block text-xs font-medium text-muted">Unidade</span>
-              <input
+              <select
                 name="unidade"
-                list="unidades-estoque"
                 defaultValue={produto?.unidade ?? "un"}
                 className="inp-est"
-              />
-              <datalist id="unidades-estoque">
+              >
                 {UNIDADES.map((u) => (
-                  <option key={u} value={u} />
+                  <option key={u} value={u}>{u}</option>
                 ))}
-              </datalist>
+              </select>
             </label>
           </div>
 
