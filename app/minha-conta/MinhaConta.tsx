@@ -8,6 +8,7 @@ import {
   enviarVerificacao,
   type EstadoConta,
 } from "./actions";
+import { CropperFoto } from "./CropperFoto";
 
 type Props = {
   nome: string;
@@ -54,6 +55,10 @@ function Aviso({ estado }: { estado: EstadoConta }) {
 export function MinhaConta(props: Props) {
   const [aba, setAba] = useState<Aba>("assinatura");
   const [foto, setFoto] = useState<string | null>(props.fotoPerfil);
+  // imagem original escolhida nesta sessão (para reenquadrar sem reescolher o arquivo)
+  const [fonteFoto, setFonteFoto] = useState<string | null>(null);
+  // data URL sendo recortada no momento (abre o modal quando preenchido)
+  const [recortando, setRecortando] = useState<string | null>(null);
   const [tema, setTema] = useState<"claro" | "escuro">(props.temaInicial);
 
   const [estPerfil, actPerfil, pendPerfil] = useActionState<EstadoConta, FormData>(
@@ -82,24 +87,25 @@ export function MinhaConta(props: Props) {
 
   function aoEscolherFoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    e.target.value = ""; // permite reescolher o mesmo arquivo depois
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        const max = 256;
-        const escala = Math.min(max / img.width, max / img.height, 1);
-        const w = Math.round(img.width * escala);
-        const h = Math.round(img.height * escala);
-        const canvas = document.createElement("canvas");
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext("2d")?.drawImage(img, 0, 0, w, h);
-        setFoto(canvas.toDataURL("image/jpeg", 0.85));
-      };
-      img.src = reader.result as string;
+      const src = reader.result as string;
+      setFonteFoto(src); // guarda o original p/ reenquadrar depois
+      setRecortando(src); // abre o modal de enquadramento
     };
     reader.readAsDataURL(file);
+  }
+
+  function confirmarRecorte(dataUrl: string) {
+    setFoto(dataUrl);
+    setRecortando(null);
+  }
+
+  function removerFoto() {
+    setFoto(null);
+    setFonteFoto(null);
   }
 
   const inicial = (props.nome || props.email).charAt(0).toUpperCase();
@@ -180,10 +186,19 @@ export function MinhaConta(props: Props) {
                     className="hidden"
                   />
                 </label>
+                {fonteFoto && (
+                  <button
+                    type="button"
+                    onClick={() => setRecortando(fonteFoto)}
+                    className="block text-xs text-primary hover:underline"
+                  >
+                    Ajustar enquadramento
+                  </button>
+                )}
                 {foto && (
                   <button
                     type="button"
-                    onClick={() => setFoto(null)}
+                    onClick={removerFoto}
                     className="block text-xs text-muted hover:text-danger"
                   >
                     Remover foto
@@ -342,6 +357,13 @@ export function MinhaConta(props: Props) {
         </div>
       )}
 
+      {recortando && (
+        <CropperFoto
+          src={recortando}
+          onConfirmar={confirmarRecorte}
+          onCancelar={() => setRecortando(null)}
+        />
+      )}
     </div>
   );
 }
