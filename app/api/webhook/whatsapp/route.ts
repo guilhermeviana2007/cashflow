@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { enviarMensagem, baixarImagemBase64 } from "@/lib/whatsapp";
 import { extrairNota } from "@/lib/anthropic";
+import { processarMensagemBot } from "@/lib/whatsapp-bot";
 
 export const maxDuration = 60;
 
@@ -33,7 +34,8 @@ export async function POST(req: NextRequest) {
 async function processarWebhook(body: unknown) {
   try {
     const entry = (body as any)?.entry?.[0];
-    const msg = entry?.changes?.[0]?.value?.messages?.[0];
+    const changes = entry?.changes?.[0]?.value;
+    const msg = changes?.messages?.[0];
     if (!msg) return;
 
     const de = String(msg.from ?? "");
@@ -41,7 +43,14 @@ async function processarWebhook(body: unknown) {
     if (msg.type === "image") {
       await processarImagem(de, msg.image?.id);
     } else if (msg.type === "text") {
-      await processarTexto(de, String(msg.text?.body ?? ""));
+      await processarMensagemBot(de, String(msg.text?.body ?? ""));
+    } else if (msg.type === "interactive") {
+      // Seleção de lista ou botão
+      const id =
+        msg.interactive?.list_reply?.id ??
+        msg.interactive?.button_reply?.id ??
+        "";
+      if (id) await processarMensagemBot(de, id);
     }
   } catch (err) {
     console.error("Webhook WhatsApp erro:", err);
@@ -121,26 +130,13 @@ async function processarImagem(de: string, mediaId: string) {
         `💰 R$ ${valorFmt}\n` +
         `📅 ${dataFmt}\n` +
         `🗂 ${catNome}\n\n` +
-        `_Lançamento salvo no CaixaFood_`
+        `_Digite *menu* para ver mais opções_`
     );
   } catch (err) {
     console.error("Erro ao processar imagem WhatsApp:", err);
     await enviarMensagem(
       de,
       "❌ Ocorreu um erro ao processar a nota.\nTente novamente ou registre manualmente no app."
-    );
-  }
-}
-
-async function processarTexto(de: string, texto: string) {
-  const lower = texto.toLowerCase().trim();
-
-  if (lower === "oi" || lower === "olá" || lower === "ola" || lower === "ajuda") {
-    await enviarMensagem(
-      de,
-      "👋 *CaixaFood Bot*\n\n" +
-        "📸 Envie uma *foto da nota fiscal* para registrar uma saída automaticamente.\n\n" +
-        "Acesse *caixafood.vercel.app* para ver todos os lançamentos."
     );
   }
 }

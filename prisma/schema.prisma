@@ -178,6 +178,18 @@ model ProdutoEstoque {
   @@index([estabelecimentoId])
 }
 
+// Estado da conversa WhatsApp por número de telefone.
+// Necessário porque a Vercel é serverless — não há memória entre chamadas.
+model SessaoWhatsapp {
+  id        String   @id @default(cuid())
+  telefone  String   @unique
+  estado    String   @default("IDLE")
+  dados     String?  // JSON com dados parciais do lançamento em andamento
+  updatedAt DateTime @updatedAt
+
+  @@index([telefone])
+}
+
 // Custo fixo recorrente (aluguel, energia, salário, etc.).
 // Lançamentos são gerados automaticamente todo mês no diaVencimento.
 model CustoFixo {
