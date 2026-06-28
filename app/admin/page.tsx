@@ -19,13 +19,14 @@ const INCLUDE = {
   },
 } as const;
 
-// Peso para ordenar: problemas primeiro.
+// Peso para ordenar: pendentes de liberação e problemas primeiro.
 const PESO: Record<Situacao, number> = {
-  VENCIDA: 0,
-  PAUSADA: 1,
-  CANCELADA: 1,
-  PROXIMA: 2,
-  EM_DIA: 3,
+  PENDENTE: 0,
+  VENCIDA: 1,
+  PAUSADA: 2,
+  CANCELADA: 2,
+  PROXIMA: 3,
+  EM_DIA: 4,
 };
 
 export default async function AdminPage() {
@@ -158,6 +159,7 @@ export default async function AdminPage() {
 
 function BadgeSituacao({ situacao, dias }: { situacao: Situacao; dias: number }) {
   const mapa: Record<Situacao, { txt: string; cls: string }> = {
+    PENDENTE: { txt: "Aguardando liberação", cls: "bg-indigo-500/15 text-indigo-400" },
     EM_DIA: { txt: "Em dia", cls: "bg-primary/15 text-primary" },
     PROXIMA: {
       txt: dias === 0 ? "Vence hoje" : `Vence em ${dias}d`,

@@ -1,25 +1,38 @@
 import { sair } from "@/app/login/actions";
 
-type Situacao = "PAUSADA" | "CANCELADA" | "VENCIDA";
+type Situacao = "PENDENTE" | "PAUSADA" | "CANCELADA" | "VENCIDA";
 
-const CONTEUDO: Record<Situacao, { icone: string; titulo: string; descricao: string }> = {
+// Número de contratação/suporte (mesmo da landing de vendas).
+const WHATSAPP_SUPORTE = "5531971354202";
+
+const CONTEUDO: Record<Situacao, { icone: string; titulo: string; descricao: string; cta: string }> = {
+  PENDENTE: {
+    icone: "⏳",
+    titulo: "Conta aguardando liberação",
+    descricao:
+      "Recebemos o seu cadastro! Para liberar o acesso, é só concluir a contratação com a gente pelo WhatsApp. Assim que o pagamento for confirmado, sua conta é ativada.",
+    cta: "Concluir contratação no WhatsApp",
+  },
   VENCIDA: {
     icone: "📅",
     titulo: "Mensalidade vencida",
     descricao:
       "Sua assinatura venceu e o acesso foi suspenso automaticamente. Regularize o pagamento com o suporte para retomar o uso do sistema.",
+    cta: "Falar com o suporte",
   },
   PAUSADA: {
     icone: "🔒",
     titulo: "Conta suspensa",
     descricao:
       "Seu acesso está temporariamente suspenso. Regularize com o suporte para voltar a usar o sistema.",
+    cta: "Falar com o suporte",
   },
   CANCELADA: {
     icone: "🔒",
     titulo: "Conta cancelada",
     descricao:
       "Sua assinatura foi cancelada. Seus dados estão guardados — fale com o suporte para reativar a conta.",
+    cta: "Falar com o suporte",
   },
 };
 
@@ -30,7 +43,13 @@ export function ContaSuspensa({
   email: string;
   situacao: Situacao;
 }) {
-  const { icone, titulo, descricao } = CONTEUDO[situacao];
+  const { icone, titulo, descricao, cta } = CONTEUDO[situacao];
+
+  const msg =
+    situacao === "PENDENTE"
+      ? `Olá! Acabei de me cadastrar no Cash Flow com a conta ${email} e quero concluir a contratação.`
+      : `Olá! Sou responsável pela conta ${email} no Cash Flow e preciso regularizar o meu acesso.`;
+  const waLink = `https://wa.me/${WHATSAPP_SUPORTE}?text=${encodeURIComponent(msg)}`;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
@@ -45,10 +64,12 @@ export function ContaSuspensa({
         </div>
 
         <a
-          href="https://wa.me/"
+          href={waLink}
+          target="_blank"
+          rel="noopener noreferrer"
           className="btn block w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:opacity-90 mb-3"
         >
-          Falar com o suporte
+          {cta}
         </a>
 
         <form action={sair}>

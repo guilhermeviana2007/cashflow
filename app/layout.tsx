@@ -56,8 +56,8 @@ export default async function RootLayout({
     proximoVencimento = assinatura.proximoVencimento;
   }
 
-  // Bloqueio total — conta vencida, pausada ou cancelada (só para o próprio cliente, não admin).
-  if (!impersonando && (situacao === "VENCIDA" || situacao === "PAUSADA" || situacao === "CANCELADA")) {
+  // Bloqueio total — conta aguardando liberação, vencida, pausada ou cancelada (só para o próprio cliente, não admin).
+  if (!impersonando && (situacao === "PENDENTE" || situacao === "VENCIDA" || situacao === "PAUSADA" || situacao === "CANCELADA")) {
     return (
       <html lang="pt-BR" data-tema={tema} className={htmlProps}>
         <body className="min-h-full">
@@ -88,10 +88,16 @@ export default async function RootLayout({
                 proximoVencimento={proximoVencimento}
               />
             )}
-            {impersonando && (situacao === "VENCIDA" || situacao === "PAUSADA" || situacao === "CANCELADA") && (
+            {impersonando && (situacao === "PENDENTE" || situacao === "VENCIDA" || situacao === "PAUSADA" || situacao === "CANCELADA") && (
               <div className="mb-5 rounded-xl border-2 border-danger bg-danger/10 p-4 text-sm font-semibold text-danger">
                 🔒 Esta conta está{" "}
-                {situacao === "CANCELADA" ? "cancelada" : situacao === "PAUSADA" ? "pausada" : "com mensalidade vencida"}{" "}
+                {situacao === "CANCELADA"
+                  ? "cancelada"
+                  : situacao === "PAUSADA"
+                    ? "pausada"
+                    : situacao === "PENDENTE"
+                      ? "aguardando liberação"
+                      : "com mensalidade vencida"}{" "}
                 — o cliente não consegue acessar o sistema.
               </div>
             )}

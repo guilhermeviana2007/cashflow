@@ -21,7 +21,7 @@ type Props = {
   usuarioId: string;
   email: string;
   assinaturaId: string;
-  status: string; // ATIVA | PAUSADA | CANCELADA
+  status: string; // PENDENTE | ATIVA | PAUSADA | CANCELADA
   valorReais: string; // "49,90"
   plano: string;
   vencimentoISO: string; // "2026-07-25"
@@ -53,6 +53,7 @@ function BotaoConfirmar({
 export function AcoesCliente(props: Props) {
   const [editando, setEditando] = useState(false);
   const pausada = props.status === "PAUSADA" || props.status === "CANCELADA";
+  const pendente = props.status === "PENDENTE";
 
   if (!props.podeGerenciar) {
     return (
@@ -69,10 +70,14 @@ export function AcoesCliente(props: Props) {
         <form action={registrarPagamento}>
           <input type="hidden" name="assinaturaId" value={props.assinaturaId} />
           <BotaoConfirmar
-            mensagem="Registrar pagamento e estender o vencimento conforme o plano?"
+            mensagem={
+              pendente
+                ? "Confirmar o pagamento e LIBERAR o acesso desta conta?"
+                : "Registrar pagamento e estender o vencimento conforme o plano?"
+            }
             className={`${btn} border-primary/40 text-primary`}
           >
-            💳 Pagamento
+            {pendente ? "✅ Liberar acesso" : "💳 Pagamento"}
           </BotaoConfirmar>
         </form>
 

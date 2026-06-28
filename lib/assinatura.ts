@@ -4,10 +4,14 @@ import { prisma } from "./prisma";
 export const DIAS_AVISO = 5;
 
 export type Plano = "MENSAL" | "TRIMESTRAL" | "SEMESTRAL" | "ANUAL";
-export type StatusAssinatura = "ATIVA" | "PAUSADA" | "CANCELADA";
+// PENDENTE = conta recém-cadastrada, ainda não liberada (aguardando pagamento).
+export type StatusAssinatura = "PENDENTE" | "ATIVA" | "PAUSADA" | "CANCELADA";
 
 // Situação derivada (calculada), usada para avisos e badges.
-export type Situacao = "EM_DIA" | "PROXIMA" | "VENCIDA" | "PAUSADA" | "CANCELADA";
+export type Situacao = "PENDENTE" | "EM_DIA" | "PROXIMA" | "VENCIDA" | "PAUSADA" | "CANCELADA";
+
+// Preço padrão do plano mensal (R$ 300) — valor inicial de uma conta nova.
+export const PRECO_MENSAL_CENTAVOS = 30000;
 
 export const PLANOS: { v: Plano; l: string; meses: number }[] = [
   { v: "MENSAL", l: "Mensal", meses: 1 },
@@ -40,6 +44,7 @@ export function diasAteVencimento(proximoVencimento: Date): number {
 export type AssinaturaLike = { status: string; proximoVencimento: Date };
 
 export function calcularSituacao(a: AssinaturaLike): { situacao: Situacao; dias: number } {
+  if (a.status === "PENDENTE") return { situacao: "PENDENTE", dias: 0 };
   if (a.status === "PAUSADA") return { situacao: "PAUSADA", dias: 0 };
   if (a.status === "CANCELADA") return { situacao: "CANCELADA", dias: 0 };
 
@@ -81,6 +86,20 @@ export async function garantirAssinatura(usuarioId: string) {
       plano: "MENSAL",
       valorCentavos: 0,
       proximoVencimento: adicionarMeses(new Date(), 1),
+    },
+  });
+}
+
+// Cria a assinatura de uma conta recém-cadastrada como PENDENTE: a pessoa
+// consegue logar, mas o acesso fica bloqueado até o admin confirmar o pagamento.
+export async function criarAssinaturaPendente(usuarioId: string) {
+  return prisma.assinatura.create({
+    data: {
+      usuarioId,
+      status: "PENDENTE",
+      plano: "MENSAL",
+      valorCentavos: PRECO_MENSAL_CENTAVOS,
+      proximoVencimento: new Date(),
     },
   });
 }

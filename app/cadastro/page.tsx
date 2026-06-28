@@ -15,12 +15,15 @@ export default async function CadastroPage() {
           </div>
           <div className="text-center">
             <p className="text-xl font-semibold text-primary">Consciência é lucro.</p>
-            <p className="text-sm text-muted mt-1">Crie sua conta grátis</p>
+            <p className="text-sm text-muted mt-1">Crie sua conta para começar</p>
           </div>
         </div>
         <div className="rounded-xl border border-border bg-card p-6">
           <FormCadastro />
         </div>
+        <p className="mt-4 text-center text-xs text-muted">
+          Após o cadastro, o acesso é liberado assim que a contratação for confirmada.
+        </p>
       </div>
     </div>
   );

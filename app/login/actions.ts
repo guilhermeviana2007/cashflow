@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { hashSenha, verificarSenha } from "@/lib/senha";
 import { criarSessao, logout, pararVerComo } from "@/lib/auth";
 import { criarEstabelecimentoComCategorias } from "@/lib/plano-de-contas";
-import { garantirAssinatura } from "@/lib/assinatura";
+import { criarAssinaturaPendente } from "@/lib/assinatura";
 
 export type EstadoAuth = { erro?: string };
 
@@ -61,7 +61,7 @@ export async function cadastrar(
     data: { email, senhaHash: hashSenha(senha) },
   });
   await criarEstabelecimentoComCategorias(prisma, usuario.id, nome, tipo);
-  await garantirAssinatura(usuario.id); // 30 dias de cortesia ao novo cliente
+  await criarAssinaturaPendente(usuario.id); // conta nasce bloqueada até o admin confirmar o pagamento
 
   await criarSessao(usuario.id);
   redirect("/dashboard");
