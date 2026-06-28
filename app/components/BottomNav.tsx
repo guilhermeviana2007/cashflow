@@ -7,6 +7,7 @@ import { sair } from "@/app/login/actions";
 
 const MENU_LINKS = [
   { href: "/estoque", label: "Estoque", icon: "📦" },
+  { href: "/marketplaces", label: "Marketplaces", icon: "🛵" },
   { href: "/custos-fixos", label: "Custos Fixos", icon: "🔄" },
   { href: "/configuracoes", label: "Configurações", icon: "⚙️" },
   { href: "/minha-conta", label: "Minha conta", icon: "👤" },

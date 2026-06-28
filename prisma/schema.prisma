@@ -96,6 +96,7 @@ model Estabelecimento {
   formasPagamento FormaPagamento[]
   custosFixos     CustoFixo[]
   produtosEstoque ProdutoEstoque[]
+  marketplaces    Marketplace[]
 
   @@index([usuarioId])
 }
@@ -171,6 +172,19 @@ model ProdutoEstoque {
   quantidadeIdeal Float    @default(0) // mínimo ideal para o aviso
   createdAt       DateTime @default(now())
   atualizadoEm    DateTime @updatedAt
+
+  estabelecimentoId String
+  estabelecimento   Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
+
+  @@index([estabelecimentoId])
+}
+
+// Canal de delivery (iFood, Rappi, etc.) — cada estabelecimento ativa os que usa.
+model Marketplace {
+  id                String   @id @default(cuid())
+  nome              String
+  ativo             Boolean  @default(true)
+  createdAt         DateTime @default(now())
 
   estabelecimentoId String
   estabelecimento   Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)

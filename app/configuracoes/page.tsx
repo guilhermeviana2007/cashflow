@@ -24,7 +24,7 @@ export default async function ConfiguracoesPage() {
   await garantirFormasPagamento(estab.id);
 
   const formas = await prisma.formaPagamento.findMany({
-    where: { estabelecimentoId: estab.id },
+    where: { estabelecimentoId: estab.id, slug: { notIn: ["ifood", "99food"] } },
     orderBy: { nome: "asc" },
   });
 

@@ -10,10 +10,17 @@ export const FORMAS_PAGAMENTO_PADRAO: {
   { slug: "debito",        nome: "Cartão de Débito",   percentualCentesimos: 0 },
   { slug: "credito",       nome: "Cartão de Crédito",  percentualCentesimos: 0 },
   { slug: "voucher",       nome: "Voucher / Vale",      percentualCentesimos: 0 },
-  { slug: "ifood",         nome: "iFood",              percentualCentesimos: 0 },
-  { slug: "99food",        nome: "99Food",             percentualCentesimos: 0 },
   { slug: "boleto",        nome: "Boleto",             percentualCentesimos: 0 },
   { slug: "transferencia", nome: "Transferência",      percentualCentesimos: 0 },
+];
+
+// Marketplaces de delivery pré-definidos para sugerir ao usuário.
+export const MARKETPLACES_SUGERIDOS = [
+  "iFood",
+  "99Food",
+  "Rappi",
+  "Uber Eats",
+  "Zé Delivery",
 ];
 
 // Plano de contas padrão para food-service.

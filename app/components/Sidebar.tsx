@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/lancamentos", label: "Lançamentos", icon: "💸" },
   { href: "/lancamentos/novo", label: "Novo lançamento", icon: "➕" },
   { href: "/estoque", label: "Estoque", icon: "📦" },
+  { href: "/marketplaces", label: "Marketplaces", icon: "🛵" },
   { href: "/custos-fixos", label: "Custos Fixos", icon: "🔄" },
   { href: "/configuracoes", label: "Configurações", icon: "⚙️" },
   { href: "/minha-conta", label: "Minha conta", icon: "👤" },

@@ -12,7 +12,7 @@ export default async function NovoLancamentoPage() {
       select: { id: true, nome: true, tipo: true },
     }),
     prisma.formaPagamento.findMany({
-      where: { estabelecimentoId: estab.id },
+      where: { estabelecimentoId: estab.id, slug: { notIn: ["ifood", "99food"] } },
       orderBy: { nome: "asc" },
       select: { slug: true, nome: true, percentualCentesimos: true },
     }),
