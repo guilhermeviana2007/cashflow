@@ -1,7 +1,5 @@
 "use server";
 
-export const maxDuration = 30;
-
 import { prisma } from "@/lib/prisma";
 import { getEstabelecimentoAtual } from "@/lib/estabelecimento";
 import { extrairNota, type NotaExtraida } from "@/lib/anthropic";

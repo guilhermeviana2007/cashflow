@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { getEstabelecimentoAtual } from "@/lib/estabelecimento";
 import { NovoLancamento } from "./NovoLancamento";
 
+export const maxDuration = 30;
+
 export default async function NovoLancamentoPage() {
   const estab = await getEstabelecimentoAtual();
 
