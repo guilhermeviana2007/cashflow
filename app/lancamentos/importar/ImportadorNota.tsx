@@ -28,14 +28,22 @@ export function ImportadorNota({ categorias }: { categorias: Categoria[] }) {
   async function lerNota(f: File) {
     setErro(null);
     setFase("extraindo");
-    const fd = new FormData();
-    fd.append("imagem", f);
-    const resultado = await extrairNotaDaImagem(fd);
-    if (resultado.ok) {
-      setDados(resultado.dados);
-      setFase("confirmar");
-    } else {
-      setErro(resultado.mensagem);
+    try {
+      // Fotos de celular têm 3-5 MB e 4000px+. Comprime antes de enviar
+      // para o upload ser rápido e a IA não engasgar com imagem gigante.
+      const comprimida = await comprimirImagem(f);
+      const fd = new FormData();
+      fd.append("imagem", comprimida);
+      const resultado = await extrairNotaDaImagem(fd);
+      if (resultado.ok) {
+        setDados(resultado.dados);
+        setFase("confirmar");
+      } else {
+        setErro(resultado.mensagem);
+        setFase("upload");
+      }
+    } catch {
+      setErro("Não consegui processar a imagem. Tente novamente ou registre manualmente.");
       setFase("upload");
     }
   }
@@ -229,4 +237,61 @@ function Campo({ label, children }: { label: string; children: React.ReactNode }
       {children}
     </label>
   );
+}
+
+// Redimensiona a imagem para no máx. 1568px no lado maior (limite recomendado
+// pela Anthropic) e recomprime como JPEG. Reduz uma foto de 4 MB para ~200 KB,
+// deixando o upload e a leitura pela IA muito mais rápidos.
+async function comprimirImagem(file: File): Promise<File> {
+  const MAX_LADO = 1568;
+  const QUALIDADE = 0.8;
+
+  const bitmap = await criarBitmap(file);
+  const { width, height } = bitmap;
+
+  // Se já é pequena, não mexe.
+  const maiorLado = Math.max(width, height);
+  const escala = maiorLado > MAX_LADO ? MAX_LADO / maiorLado : 1;
+  const novaW = Math.round(width * escala);
+  const novaH = Math.round(height * escala);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = novaW;
+  canvas.height = novaH;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file; // fallback: usa original
+  ctx.drawImage(bitmap, 0, 0, novaW, novaH);
+  if ("close" in bitmap) (bitmap as ImageBitmap).close?.();
+
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, "image/jpeg", QUALIDADE)
+  );
+  if (!blob) return file;
+
+  return new File([blob], "nota.jpg", { type: "image/jpeg" });
+}
+
+// Cria um bitmap da imagem de forma compatível com Safari/iOS, que nem sempre
+// suporta createImageBitmap diretamente de um File.
+async function criarBitmap(file: File): Promise<ImageBitmap | HTMLImageElement> {
+  if (typeof createImageBitmap === "function") {
+    try {
+      return await createImageBitmap(file);
+    } catch {
+      // cai para o método do <img> abaixo
+    }
+  }
+  return await new Promise<HTMLImageElement>((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Falha ao carregar imagem"));
+    };
+    img.src = url;
+  });
 }
