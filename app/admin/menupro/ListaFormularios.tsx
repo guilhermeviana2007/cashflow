@@ -35,6 +35,27 @@ type Formulario = {
   temFotos: string;
   lido: boolean;
   createdAt: string;
+  repasseTipoDocumento: string | null;
+  repasseDocumento: string | null;
+  repasseNomeCompleto: string | null;
+  repasseDataNascimento: string | null;
+  repasseOcupacao: string | null;
+  repasseNomeMae: string | null;
+  repasseCep: string | null;
+  repasseEndereco: string | null;
+  repasseNumero: string | null;
+  repasseComplemento: string | null;
+  repasseBairro: string | null;
+  repasseCidade: string | null;
+  repasseEstado: string | null;
+  repasseTipoChavePix: string | null;
+  repasseChavePix: string | null;
+  repasseBanco: string | null;
+  repasseTipoConta: string | null;
+  repasseAgencia: string | null;
+  repasseConta: string | null;
+  repasseEmail: string | null;
+  repasseCelular: string | null;
 };
 
 export function ListaFormularios({ formularios }: { formularios: Formulario[] }) {
@@ -133,6 +154,34 @@ export function ListaFormularios({ formularios }: { formularios: Formulario[] })
                   <Linha rotulo="Canais de atendimento" valor={f.canaisAtendimento || "—"} />
                   <Linha rotulo="Tem fotos dos produtos" valor={f.temFotos} />
                 </Grupo>
+
+                {(f.repasseDocumento || f.repasseChavePix || f.repasseBanco) && (
+                  <Grupo titulo="💳 Conta de repasses (Pix)">
+                    <Linha
+                      rotulo={f.repasseTipoDocumento === "CNPJ" ? "CNPJ" : "CPF"}
+                      valor={f.repasseDocumento || "—"}
+                      copiavel={!!f.repasseDocumento}
+                    />
+                    <Linha rotulo="Titular" valor={f.repasseNomeCompleto || "—"} />
+                    <Linha rotulo="Nascimento" valor={f.repasseDataNascimento || "—"} />
+                    <Linha rotulo="Ocupação" valor={f.repasseOcupacao || "—"} />
+                    <Linha rotulo="Nome da mãe" valor={f.repasseNomeMae || "—"} />
+                    {(f.repasseEndereco || f.repasseCep) && (
+                      <Linha
+                        rotulo="Endereço de faturamento"
+                        valor={`${f.repasseEndereco || "—"}${f.repasseNumero ? ", " + f.repasseNumero : ""}${f.repasseComplemento ? " – " + f.repasseComplemento : ""} · ${f.repasseBairro || ""} · ${f.repasseCidade || ""}${f.repasseEstado ? "/" + f.repasseEstado : ""} · CEP ${f.repasseCep || "—"}`}
+                      />
+                    )}
+                    <Linha rotulo="Tipo de chave Pix" valor={f.repasseTipoChavePix || "—"} />
+                    <Linha rotulo="Chave Pix" valor={f.repasseChavePix || "—"} copiavel={!!f.repasseChavePix} />
+                    <Linha rotulo="Banco" valor={f.repasseBanco || "—"} />
+                    <Linha rotulo="Tipo de conta" valor={f.repasseTipoConta || "—"} />
+                    <Linha rotulo="Agência" valor={f.repasseAgencia || "—"} />
+                    <Linha rotulo="Conta" valor={f.repasseConta || "—"} copiavel={!!f.repasseConta} />
+                    <Linha rotulo="E-mail" valor={f.repasseEmail || "—"} copiavel={!!f.repasseEmail} />
+                    <Linha rotulo="Celular" valor={f.repasseCelular || "—"} copiavel={!!f.repasseCelular} />
+                  </Grupo>
+                )}
 
                 <Grupo titulo="🔑 Acessos das plataformas">
                   <ParCredencial titulo="Cardápio Digital" login={f.cardapioLogin} senha={f.cardapioSenha} />

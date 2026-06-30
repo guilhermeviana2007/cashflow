@@ -208,6 +208,29 @@ model FormularioMenuPro {
   sistemaFinanceiro   String?  // já possui sistema financeiro/fluxo de caixa?
   canaisAtendimento   String?  // canais de atendimento atuais
   temFotos            String   // "Sim" | "Não" | "Parcial"
+
+  // Conta de repasses (Pix automático do cardápio)
+  repasseTipoDocumento   String? // "CPF" | "CNPJ"
+  repasseDocumento       String?
+  repasseNomeCompleto    String?
+  repasseDataNascimento  String?
+  repasseOcupacao        String?
+  repasseNomeMae         String?
+  repasseCep             String?
+  repasseEndereco        String?
+  repasseNumero          String?
+  repasseComplemento     String?
+  repasseBairro          String?
+  repasseCidade          String?
+  repasseEstado          String?
+  repasseTipoChavePix    String?
+  repasseChavePix        String?
+  repasseBanco           String?
+  repasseTipoConta       String? // "Conta Corrente" | "Conta Poupança"
+  repasseAgencia         String?
+  repasseConta           String?
+  repasseEmail           String?
+  repasseCelular         String?
   lido                Boolean  @default(false)
   createdAt           DateTime @default(now())
 
