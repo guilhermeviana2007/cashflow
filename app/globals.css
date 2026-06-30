@@ -87,6 +87,26 @@ input[type="number"].inp {
   appearance: textfield;
 }
 
+/* ---------- Campos do formulário público MenuPro (tema preto/vermelho) ---------- */
+.campo {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.campo::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+.campo:focus {
+  border-color: #e2231a;
+  box-shadow: 0 0 0 3px rgba(226, 35, 26, 0.18);
+}
+
 /* ---------- Botões interativos: animação no hover e ao clicar ---------- */
 button:not(:disabled) {
   cursor: pointer;

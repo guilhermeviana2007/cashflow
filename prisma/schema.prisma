@@ -179,6 +179,33 @@ model ProdutoEstoque {
   @@index([estabelecimentoId])
 }
 
+// Formulário público de onboarding do MenuPro (cardápio digital).
+// Não tem login — qualquer cliente preenche pelo link público e cai no painel admin.
+model FormularioMenuPro {
+  id                  String   @id @default(cuid())
+  nomeResponsavel     String
+  telefone            String
+  email               String
+  cnpj                String
+  nomeEstabelecimento String
+  marketplaces        String   // texto livre (iFood, 99Food, etc.)
+  trabalhaMesas       String   // "Sim" | "Não"
+  entregaPropria      String   // "Sim" | "Não"
+  cardapioLogin       String?
+  cardapioSenha       String?
+  ifoodLogin          String?
+  ifoodSenha          String?
+  noveNoveLogin       String?
+  noveNoveSenha       String?
+  sistemaFinanceiro   String?  // já possui sistema financeiro/fluxo de caixa?
+  canaisAtendimento   String?  // canais de atendimento atuais
+  temFotos            String   // "Sim" | "Não" | "Parcial"
+  lido                Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 // Canal de delivery (iFood, Rappi, etc.) — cada estabelecimento ativa os que usa.
 model Marketplace {
   id                String   @id @default(cuid())
