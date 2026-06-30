@@ -7,6 +7,7 @@ import {
   rotuloPlano,
   mesesDoPlano,
   adicionarMeses,
+  DIAS_AVISO_TRIAL,
   type Situacao,
 } from "@/lib/assinatura";
 import { AcoesCliente } from "./AcoesCliente";
@@ -24,10 +25,11 @@ const INCLUDE = {
 const PESO: Record<Situacao, number> = {
   PENDENTE: 0,
   VENCIDA: 1,
-  PAUSADA: 2,
-  CANCELADA: 2,
-  PROXIMA: 3,
-  EM_DIA: 4,
+  TRIAL: 2,
+  PAUSADA: 3,
+  CANCELADA: 3,
+  PROXIMA: 4,
+  EM_DIA: 5,
 };
 
 export default async function AdminPage() {
@@ -59,7 +61,7 @@ export default async function AdminPage() {
       const { situacao, dias } = calcularSituacao(a);
       return { u, a, situacao, dias };
     })
-    .sort((x, y) => PESO[x.situacao] - PESO[y.situacao]);
+    .sort((x, y) => PESO[x.situacao] - PESO[y.situacao] || x.dias - y.dias);
 
   // Estatísticas de billing.
   const mrrCentavos = linhas
@@ -67,6 +69,10 @@ export default async function AdminPage() {
     .reduce((s, l) => s + Math.round(l.a.valorCentavos / mesesDoPlano(l.a.plano)), 0);
   const vencidos = linhas.filter((l) => l.situacao === "VENCIDA").length;
   const proximos = linhas.filter((l) => l.situacao === "PROXIMA").length;
+  const emTrial = linhas.filter((l) => l.situacao === "TRIAL").length;
+  const trialAcabando = linhas.filter(
+    (l) => l.situacao === "TRIAL" && l.dias <= DIAS_AVISO_TRIAL
+  ).length;
 
   // Formulários MenuPro não lidos (badge no atalho).
   const formulariosNovos = await prisma.formularioMenuPro.count({ where: { lido: false } });
@@ -99,7 +105,7 @@ export default async function AdminPage() {
       </Link>
 
       {/* Cards de resumo */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <StatCard titulo="Clientes" valor={usuarios.length.toString()} />
         <StatCard
           titulo="Receita mensal (MRR)"
@@ -108,6 +114,14 @@ export default async function AdminPage() {
         />
         <StatCard titulo="Pagamentos vencidos" valor={vencidos.toString()} alerta={vencidos > 0} />
         <StatCard titulo="Próximos do vencimento" valor={proximos.toString()} />
+      </div>
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <StatCard titulo="Em teste grátis" valor={emTrial.toString()} />
+        <StatCard
+          titulo="Testes acabando (≤3 dias)"
+          valor={trialAcabando.toString()}
+          alerta={trialAcabando > 0}
+        />
       </div>
 
       {/* Lista de clientes (cards — funciona bem no celular) */}
@@ -152,7 +166,10 @@ export default async function AdminPage() {
 
               {/* Infos */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 text-sm">
-                <Info titulo="Vencimento" valor={formatData(a.proximoVencimento)} />
+                <Info
+                  titulo={situacao === "TRIAL" ? "Fim do teste" : "Vencimento"}
+                  valor={formatData(a.proximoVencimento)}
+                />
                 <Info
                   titulo="Mensalidade"
                   valor={`${formatBRL(a.valorCentavos)} · ${rotuloPlano(a.plano)}`}
@@ -186,6 +203,13 @@ export default async function AdminPage() {
 function BadgeSituacao({ situacao, dias }: { situacao: Situacao; dias: number }) {
   const mapa: Record<Situacao, { txt: string; cls: string }> = {
     PENDENTE: { txt: "Aguardando liberação", cls: "bg-indigo-500/15 text-indigo-400" },
+    TRIAL: {
+      txt: dias <= DIAS_AVISO_TRIAL ? `Teste acaba em ${dias}d` : `Teste: ${dias}d restantes`,
+      cls:
+        dias <= DIAS_AVISO_TRIAL
+          ? "bg-danger/15 text-danger"
+          : "bg-sky-500/15 text-sky-500",
+    },
     EM_DIA: { txt: "Em dia", cls: "bg-primary/15 text-primary" },
     PROXIMA: {
       txt: dias === 0 ? "Vence hoje" : `Vence em ${dias}d`,

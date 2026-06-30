@@ -81,7 +81,7 @@ export default async function RootLayout({
             fotoPerfil={estab.fotoPerfil}
           />
           <main className="flex-1 p-4 md:p-6 lg:p-10 max-w-6xl mx-auto w-full pb-24 md:pb-10">
-            {situacao === "PROXIMA" && proximoVencimento && (
+            {(situacao === "TRIAL" || situacao === "PROXIMA") && proximoVencimento && (
               <AvisoAssinatura
                 situacao={situacao}
                 dias={dias}

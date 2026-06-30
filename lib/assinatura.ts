@@ -4,14 +4,28 @@ import { prisma } from "./prisma";
 export const DIAS_AVISO = 5;
 
 export type Plano = "MENSAL" | "TRIMESTRAL" | "SEMESTRAL" | "ANUAL";
-// PENDENTE = conta recém-cadastrada, ainda não liberada (aguardando pagamento).
-export type StatusAssinatura = "PENDENTE" | "ATIVA" | "PAUSADA" | "CANCELADA";
+// PENDENTE = conta antiga aguardando liberação manual (fluxo legado).
+// TRIAL = conta nova, com acesso liberado durante o período de teste grátis.
+export type StatusAssinatura = "PENDENTE" | "TRIAL" | "ATIVA" | "PAUSADA" | "CANCELADA";
 
 // Situação derivada (calculada), usada para avisos e badges.
-export type Situacao = "PENDENTE" | "EM_DIA" | "PROXIMA" | "VENCIDA" | "PAUSADA" | "CANCELADA";
+export type Situacao =
+  | "PENDENTE"
+  | "TRIAL"
+  | "EM_DIA"
+  | "PROXIMA"
+  | "VENCIDA"
+  | "PAUSADA"
+  | "CANCELADA";
 
 // Preço padrão do plano mensal (R$ 300) — valor inicial de uma conta nova.
 export const PRECO_MENSAL_CENTAVOS = 30000;
+
+// Dias de teste grátis para contas novas.
+export const DIAS_TRIAL = 15;
+
+// A partir de quantos dias restantes o trial entra no "alerta vermelho" (cobrar).
+export const DIAS_AVISO_TRIAL = 3;
 
 export const PLANOS: { v: Plano; l: string; meses: number }[] = [
   { v: "MENSAL", l: "Mensal", meses: 1 },
@@ -49,9 +63,23 @@ export function calcularSituacao(a: AssinaturaLike): { situacao: Situacao; dias:
   if (a.status === "CANCELADA") return { situacao: "CANCELADA", dias: 0 };
 
   const dias = diasAteVencimento(a.proximoVencimento);
+
+  if (a.status === "TRIAL") {
+    // Trial vencido => bloqueia igual a uma mensalidade vencida.
+    if (dias < 0) return { situacao: "VENCIDA", dias };
+    return { situacao: "TRIAL", dias };
+  }
+
   if (dias < 0) return { situacao: "VENCIDA", dias };
   if (dias <= DIAS_AVISO) return { situacao: "PROXIMA", dias };
   return { situacao: "EM_DIA", dias };
+}
+
+// Soma dias a uma data, no início do dia.
+export function adicionarDias(data: Date, dias: number): Date {
+  const d = inicioDoDia(data);
+  d.setDate(d.getDate() + dias);
+  return d;
 }
 
 // Soma meses tratando overflow de fim de mês (31/jan + 1 mês => 28/29 fev).
@@ -90,16 +118,16 @@ export async function garantirAssinatura(usuarioId: string) {
   });
 }
 
-// Cria a assinatura de uma conta recém-cadastrada como PENDENTE: a pessoa
-// consegue logar, mas o acesso fica bloqueado até o admin confirmar o pagamento.
-export async function criarAssinaturaPendente(usuarioId: string) {
+// Cria a assinatura de uma conta recém-cadastrada como TRIAL: o acesso já
+// nasce liberado e dura DIAS_TRIAL dias; ao final, vira VENCIDA automaticamente.
+export async function criarAssinaturaTrial(usuarioId: string) {
   return prisma.assinatura.create({
     data: {
       usuarioId,
-      status: "PENDENTE",
+      status: "TRIAL",
       plano: "MENSAL",
       valorCentavos: PRECO_MENSAL_CENTAVOS,
-      proximoVencimento: new Date(),
+      proximoVencimento: adicionarDias(new Date(), DIAS_TRIAL),
     },
   });
 }
