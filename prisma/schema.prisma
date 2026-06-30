@@ -82,9 +82,6 @@ model Estabelecimento {
   saldoInicialCentavos Int      @default(0)
   saldoInicialData     DateTime?
 
-  // Número WhatsApp vinculado (formato E.164 sem +, ex: 5511999999999)
-  whatsappTelefone     String?
-
   // Foto/avatar do estabelecimento (data URL base64)
   fotoPerfil           String?
 
@@ -197,6 +194,17 @@ model FormularioMenuPro {
   ifoodSenha          String?
   noveNoveLogin       String?
   noveNoveSenha       String?
+  telefoneLoja        String?  // WhatsApp/telefone do estabelecimento (diferente do pessoal)
+  cep                 String?
+  logradouro          String?
+  numero              String?
+  complemento         String?
+  bairro              String?
+  cidade              String?
+  estado              String?
+  horarioFuncionamento String? // "Seg: 09:00–22:00 | ... | Dom: Fechado"
+  formasPagamento     String?  // formas de pagamento aceitas (texto separado por vírgula)
+  taxaEntrega         String?  // como organiza as taxas: por bairro / distância / fixa / não faz
   sistemaFinanceiro   String?  // já possui sistema financeiro/fluxo de caixa?
   canaisAtendimento   String?  // canais de atendimento atuais
   temFotos            String   // "Sim" | "Não" | "Parcial"
@@ -217,18 +225,6 @@ model Marketplace {
   estabelecimento   Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
 
   @@index([estabelecimentoId])
-}
-
-// Estado da conversa WhatsApp por número de telefone.
-// Necessário porque a Vercel é serverless — não há memória entre chamadas.
-model SessaoWhatsapp {
-  id        String   @id @default(cuid())
-  telefone  String   @unique
-  estado    String   @default("IDLE")
-  dados     String?  // JSON com dados parciais do lançamento em andamento
-  updatedAt DateTime @updatedAt
-
-  @@index([telefone])
 }
 
 // Custo fixo recorrente (aluguel, energia, salário, etc.).

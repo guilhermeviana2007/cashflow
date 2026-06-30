@@ -9,10 +9,21 @@ type Formulario = {
   telefone: string;
   email: string;
   cnpj: string;
+  telefoneLoja: string | null;
   nomeEstabelecimento: string;
   marketplaces: string;
   trabalhaMesas: string;
   entregaPropria: string;
+  horarioFuncionamento: string | null;
+  taxaEntrega: string | null;
+  cep: string | null;
+  logradouro: string | null;
+  numero: string | null;
+  complemento: string | null;
+  bairro: string | null;
+  cidade: string | null;
+  estado: string | null;
+  formasPagamento: string | null;
   cardapioLogin: string | null;
   cardapioSenha: string | null;
   ifoodLogin: string | null;
@@ -86,15 +97,38 @@ export function ListaFormularios({ formularios }: { formularios: Formulario[] })
               <div className="mt-4 space-y-4 border-t border-border pt-4">
                 <Grupo titulo="Contato">
                   <Linha rotulo="Responsável" valor={f.nomeResponsavel} />
-                  <Linha rotulo="Telefone" valor={f.telefone} copiavel />
+                  <Linha rotulo="Tel. pessoal" valor={f.telefone} copiavel />
+                  {f.telefoneLoja && <Linha rotulo="Tel. da loja" valor={f.telefoneLoja} copiavel />}
                   <Linha rotulo="E-mail" valor={f.email} copiavel />
                   <Linha rotulo="CNPJ" valor={f.cnpj || "—"} copiavel={!!f.cnpj} />
                 </Grupo>
+
+                {(f.cep || f.logradouro || f.cidade) && (
+                  <Grupo titulo="Endereço">
+                    {f.logradouro && (
+                      <Linha rotulo="Logradouro" valor={`${f.logradouro}${f.numero ? ", " + f.numero : ""}${f.complemento ? " – " + f.complemento : ""}`} />
+                    )}
+                    {f.bairro && <Linha rotulo="Bairro" valor={f.bairro} />}
+                    {f.cidade && <Linha rotulo="Cidade / UF" valor={`${f.cidade}${f.estado ? " – " + f.estado : ""}`} />}
+                    {f.cep && <Linha rotulo="CEP" valor={f.cep} />}
+                  </Grupo>
+                )}
+
+                {f.horarioFuncionamento && (
+                  <Grupo titulo="Horário de funcionamento">
+                    {f.horarioFuncionamento.split(" | ").map((linha) => {
+                      const [dia, horario] = linha.split(": ");
+                      return <Linha key={dia} rotulo={dia} valor={horario ?? "—"} />;
+                    })}
+                  </Grupo>
+                )}
 
                 <Grupo titulo="Operação">
                   <Linha rotulo="Marketplaces" valor={f.marketplaces || "—"} />
                   <Linha rotulo="Mesas/comandas" valor={f.trabalhaMesas} />
                   <Linha rotulo="Entrega própria" valor={f.entregaPropria} />
+                  <Linha rotulo="Taxa de entrega" valor={f.taxaEntrega || "—"} />
+                  <Linha rotulo="Formas de pagamento" valor={f.formasPagamento || "—"} />
                   <Linha rotulo="Sistema financeiro" valor={f.sistemaFinanceiro || "—"} />
                   <Linha rotulo="Canais de atendimento" valor={f.canaisAtendimento || "—"} />
                   <Linha rotulo="Tem fotos dos produtos" valor={f.temFotos} />

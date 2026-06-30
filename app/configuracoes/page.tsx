@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getEstabelecimentoAtual } from "@/lib/estabelecimento";
 import { FORMAS_PAGAMENTO_PADRAO } from "@/lib/plano-de-contas";
-import { salvarSaldoInicial, salvarTaxas, salvarWhatsapp } from "./actions";
+import { salvarSaldoInicial, salvarTaxas } from "./actions";
 
 // Garante que o estabelecimento tem todas as formas de pagamento padrão.
 // Necessário para contas criadas antes desta funcionalidade.
@@ -45,81 +45,6 @@ export default async function ConfiguracoesPage() {
           Defina de onde o caixa começa a contar e a taxa padrão de cada forma de pagamento.
         </p>
       </div>
-
-      {/* WhatsApp */}
-      <section className="rounded-xl border border-primary/30 bg-primary/5 p-6 mb-6">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-lg">📱</span>
-          <h2 className="font-semibold">Integração WhatsApp</h2>
-          <span className="rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">
-            Novo
-          </span>
-        </div>
-        <p className="text-sm text-muted mb-5">
-          Vincule seu WhatsApp e envie fotos de notas fiscais diretamente para registrar saídas
-          automaticamente.
-        </p>
-
-        <form action={salvarWhatsapp} className="space-y-4">
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-muted">
-              Seu número de WhatsApp
-            </span>
-            <input
-              name="whatsappTelefone"
-              type="tel"
-              inputMode="numeric"
-              placeholder="(11) 99999-9999"
-              defaultValue={estab.whatsappTelefone ?? ""}
-              className="inp"
-            />
-            <p className="mt-1.5 text-xs text-muted">
-              Número que vai enviar fotos de notas. Com ou sem código do país.
-            </p>
-          </label>
-
-          {estab.whatsappTelefone && (
-            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
-              ✅ Número vinculado:{" "}
-              <strong className="text-foreground">+{estab.whatsappTelefone}</strong>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className="btn rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90"
-          >
-            Salvar número
-          </button>
-        </form>
-
-        <div className="mt-5 border-t border-border pt-5">
-          <p className="text-xs font-medium text-muted mb-2">
-            CONFIGURAÇÃO NO META (uma vez só)
-          </p>
-          <ol className="text-xs text-muted space-y-1 list-decimal list-inside">
-            <li>Acesse developers.facebook.com e crie um App do tipo Business</li>
-            <li>Adicione o produto WhatsApp ao app</li>
-            <li>Em WhatsApp → Configuração de webhook, cole a URL abaixo</li>
-            <li>No campo Verify Token, cole o token abaixo</li>
-            <li>Assine o evento <strong className="text-foreground">messages</strong></li>
-          </ol>
-          <div className="mt-3 space-y-2">
-            <div>
-              <p className="text-xs text-muted mb-1">URL do webhook:</p>
-              <code className="block rounded bg-card border border-border px-3 py-2 text-xs text-foreground break-all">
-                https://caixafood.vercel.app/api/webhook/whatsapp
-              </code>
-            </div>
-            <div>
-              <p className="text-xs text-muted mb-1">Verify Token (configure no .env do Vercel):</p>
-              <code className="block rounded bg-card border border-border px-3 py-2 text-xs text-foreground">
-                WHATSAPP_VERIFY_TOKEN=qualquer-texto-secreto-que-você-escolher
-              </code>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Saldo inicial */}
       <section className="rounded-xl border border-border bg-card p-6 mb-6">

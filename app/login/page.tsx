@@ -22,7 +22,7 @@ export default async function LoginPage() {
           <FormLogin />
         </div>
         <p className="mt-4 text-center text-xs text-muted">
-          Conta de teste: demo@caixafood.com / demo1234
+          Conta de teste: demo@cashflow.com / demo1234
         </p>
       </div>
     </div>
