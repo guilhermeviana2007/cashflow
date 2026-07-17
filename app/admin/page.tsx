@@ -77,32 +77,58 @@ export default async function AdminPage() {
   // Formulários MenuPro não lidos (badge no atalho).
   const formulariosNovos = await prisma.formularioMenuPro.count({ where: { lido: false } });
 
+  // Respostas de onboarding não lidas (badge no atalho).
+  const onboardingNovos = await prisma.respostaOnboarding.count({ where: { lido: false } });
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-1">Administração</h1>
       <p className="text-muted mb-6">Assinaturas, acessos e pagamentos dos clientes.</p>
 
-      {/* Atalho para os formulários do MenuPro */}
-      <Link
-        href="/admin/menupro"
-        className="btn mb-6 flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 hover:border-primary/50"
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">📋</span>
-          <div>
-            <div className="font-semibold">Formulários MenuPro</div>
-            <div className="text-xs text-muted">Cadastros do cardápio digital</div>
+      {/* Atalhos para formulários e onboarding */}
+      <div className="mb-6 grid gap-3 sm:grid-cols-2">
+        <Link
+          href="/admin/menupro"
+          className="btn flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 hover:border-primary/50"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">📋</span>
+            <div>
+              <div className="font-semibold">Formulários MenuPro</div>
+              <div className="text-xs text-muted">Cadastros do cardápio digital</div>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {formulariosNovos > 0 && (
-            <span className="rounded-full bg-primary/15 px-2.5 py-1 text-xs font-semibold text-primary">
-              {formulariosNovos} novo{formulariosNovos > 1 ? "s" : ""}
-            </span>
-          )}
-          <span className="text-muted">→</span>
-        </div>
-      </Link>
+          <div className="flex items-center gap-2">
+            {formulariosNovos > 0 && (
+              <span className="rounded-full bg-primary/15 px-2.5 py-1 text-xs font-semibold text-primary">
+                {formulariosNovos} novo{formulariosNovos > 1 ? "s" : ""}
+              </span>
+            )}
+            <span className="text-muted">→</span>
+          </div>
+        </Link>
+
+        <Link
+          href="/admin/onboarding"
+          className="btn flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 hover:border-primary/50"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🔗</span>
+            <div>
+              <div className="font-semibold">Onboarding</div>
+              <div className="text-xs text-muted">Gerar links e ver respostas dos clientes</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {onboardingNovos > 0 && (
+              <span className="rounded-full bg-primary/15 px-2.5 py-1 text-xs font-semibold text-primary">
+                {onboardingNovos} novo{onboardingNovos > 1 ? "s" : ""}
+              </span>
+            )}
+            <span className="text-muted">→</span>
+          </div>
+        </Link>
+      </div>
 
       {/* Cards de resumo */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
