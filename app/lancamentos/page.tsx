@@ -102,6 +102,7 @@ export default async function LancamentosPage({
             taxaDescontadaCentavos: l.taxaDescontadaCentavos,
             dataFormatada: formatData(l.data),
             categoriaNome: l.categoria?.nome ?? null,
+            origem: l.origem,
           }))}
         />
       </div>

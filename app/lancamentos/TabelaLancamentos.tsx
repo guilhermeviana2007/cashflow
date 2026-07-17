@@ -14,6 +14,7 @@ type LancamentoItem = {
   taxaDescontadaCentavos: number;
   dataFormatada: string;
   categoriaNome: string | null;
+  origem: string;
 };
 
 export function TabelaLancamentos({ lancamentos: inicial }: { lancamentos: LancamentoItem[] }) {
