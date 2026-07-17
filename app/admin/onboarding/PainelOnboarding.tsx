@@ -323,6 +323,12 @@ function Linha({ c, baseUrl }: { c: ConviteView; baseUrl: string }) {
                 >
                   {r.lido ? "Marcar como não lido" : "Marcar como lido"}
                 </button>
+                <a
+                  href={`/admin/onboarding/${c.id}/pdf`}
+                  className="btn rounded-lg border border-border px-3 py-1.5 text-xs"
+                >
+                  Exportar PDF
+                </a>
               </div>
             </>
           )}
