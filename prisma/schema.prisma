@@ -124,7 +124,9 @@ model Lancamento {
   data           DateTime
   fornecedor     String?
   formaPagamento String?  // slug da FormaPagamento (ex: "debito", "credito", "pix")
-  origem         String   @default("MANUAL") // "MANUAL" | "UPLOAD" | "WHATSAPP" | "CUSTO_FIXO"
+  origem         String   @default("MANUAL") // "MANUAL" | "UPLOAD" | "WHATSAPP" | "CUSTO_FIXO" | "MARKETPLACE"
+  // Identificador do registro na origem externa. Usado para não duplicar lançamentos.
+  origemExternaId String?
   status         String   @default("CONFIRMADO") // "PENDENTE" | "CONFIRMADO"
   createdAt      DateTime @default(now())
 
@@ -137,6 +139,9 @@ model Lancamento {
   estabelecimentoId String
   estabelecimento   Estabelecimento @relation(fields: [estabelecimentoId], references: [id], onDelete: Cascade)
 
+  // Índice p/ a checagem de idempotência (evitar lançar o mesmo pedido 2x).
+  // Não é unique de propósito: adicionar unique exigiria migração destrutiva.
+  @@index([estabelecimentoId, origem, origemExternaId])
   @@index([estabelecimentoId, data])
   @@index([estabelecimentoId, tipo, data])
   @@index([categoriaId])
@@ -233,6 +238,50 @@ model FormularioMenuPro {
   repasseCelular         String?
   lido                Boolean  @default(false)
   createdAt           DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// Convite de onboarding — link único por cliente, gerado pelo admin depois do
+// contrato fechado. O plano e os serviços vêm daqui (não da escolha do cliente),
+// então o formulário confirma o escopo em vez de perguntar.
+model ConviteOnboarding {
+  id           String   @id @default(cuid())
+  token        String   @unique // parte secreta da URL /onboarding/<token>
+  nomeCliente  String            // referência interna, aparece no painel
+  emailCliente String
+  plano        String            // "ENTRADA" | "INTERMEDIARIO" | "PREMIUM"
+  servicos     String[]          // slugs: "site" | "sistema" | "instagram" | "google" | "ads"
+  expiraEm     DateTime
+  criadoPor    String?           // e-mail do admin que gerou
+  createdAt    DateTime @default(now())
+
+  resposta RespostaOnboarding?
+
+  @@index([createdAt])
+}
+
+// Resposta do formulário de onboarding. As respostas ficam em Json aninhado por
+// seção: são ~200 campos condicionais lidos por humanos no painel, não filtrados
+// por query — coluna por campo aqui seria migração eterna e sem ganho.
+model RespostaOnboarding {
+  id           String            @id @default(cuid())
+  conviteId    String            @unique
+  convite      ConviteOnboarding @relation(fields: [conviteId], references: [id], onDelete: Cascade)
+  submissionId String            @unique // gerado no cliente — reenvio não duplica
+
+  respostas Json // { empresa: {...}, contatos: {...}, comercial: {...}, ... }
+  pendencias Json // [{ texto, responsavel, criticidade }]
+
+  // Termo de veracidade (Etapa 14)
+  aceiteNome  String
+  aceiteCpf   String
+  aceiteCargo String
+  aceiteIp    String?
+  aceiteEm    DateTime @default(now())
+
+  lido      Boolean  @default(false)
+  createdAt DateTime @default(now())
 
   @@index([createdAt])
 }
