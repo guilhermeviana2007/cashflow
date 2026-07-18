@@ -54,6 +54,51 @@ const TITULO_ETAPA = new Map(ETAPAS.map((e) => [e.id, e.titulo]));
 // Siglas comuns nos formulários — ficam em caixa alta mesmo depois de "humanizar" a chave.
 const SIGLAS = new Set(["cnpj", "cpf", "cep", "ie", "im", "url", "ip", "seo", "cta", "ga", "gtm", "ads"]);
 
+// Horário de funcionamento: o formulário grava um objeto por dia da semana,
+// { seg: {abre,fecha} | {fechado:true}, ... }. Renderizado como tabela, não texto.
+const DIAS_SEMANA: [string, string][] = [
+  ["seg", "Segunda-feira"],
+  ["ter", "Terça-feira"],
+  ["qua", "Quarta-feira"],
+  ["qui", "Quinta-feira"],
+  ["sex", "Sexta-feira"],
+  ["sab", "Sábado"],
+  ["dom", "Domingo"],
+];
+const CHAVES_DIA = new Set(DIAS_SEMANA.map(([k]) => k));
+
+type DiaHorario = { abre?: string; fecha?: string; fechado?: boolean };
+
+// Reconhece o objeto de horário pela forma (chaves de dia), não pelo nome do campo.
+function ehHorario(valor: unknown): valor is Record<string, DiaHorario> {
+  if (valor === null || typeof valor !== "object" || Array.isArray(valor)) return false;
+  const chaves = Object.keys(valor);
+  return chaves.length > 0 && chaves.every((k) => CHAVES_DIA.has(k));
+}
+
+// Uma entrada de dia -> texto da célula ("12:00 – 18:00" ou "Fechado").
+function textoHorarioDia(dia: DiaHorario | undefined): string {
+  if (!dia || dia.fechado) return "Fechado";
+  if (dia.abre && dia.fecha) return `${dia.abre} – ${dia.fecha}`;
+  if (dia.abre) return `A partir de ${dia.abre}`;
+  return "Fechado";
+}
+
+// Um item de lista-de-objetos (produtos, redes sociais…) -> uma linha legível,
+// em vez de despejar JSON cru no PDF.
+function formatarItemObjeto(item: Record<string, unknown>): string {
+  if (typeof item.nome === "string" && item.nome) {
+    const desc = typeof item.descricao === "string" ? item.descricao.trim() : "";
+    return desc ? `${item.nome} (${desc})` : item.nome;
+  }
+  if (typeof item.rede === "string" && typeof item.url === "string") return `${item.rede}: ${item.url}`;
+  if (typeof item.url === "string") return item.url;
+  return Object.entries(item)
+    .filter(([, v]) => v !== null && v !== "" && v !== undefined)
+    .map(([k, v]) => `${k}: ${String(v)}`)
+    .join(", ");
+}
+
 function humanizarChave(chave: string): string {
   const palavras = chave
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
@@ -74,8 +119,17 @@ function humanizarChave(chave: string): string {
 function formatarValor(valor: unknown): string {
   if (valor === null || valor === undefined || valor === "") return "—";
   if (typeof valor === "boolean") return valor ? "Sim" : "Não";
-  if (Array.isArray(valor)) return valor.length ? valor.map(String).join(", ") : "—";
-  if (typeof valor === "object") return JSON.stringify(valor);
+  if (Array.isArray(valor)) {
+    if (valor.length === 0) return "—";
+    return valor
+      .map((item) =>
+        item !== null && typeof item === "object"
+          ? formatarItemObjeto(item as Record<string, unknown>)
+          : String(item)
+      )
+      .join("  •  ");
+  }
+  if (typeof valor === "object") return formatarItemObjeto(valor as Record<string, unknown>);
   return String(valor);
 }
 
@@ -109,10 +163,16 @@ export async function gerarPdfOnboarding(d: DadosPdf): Promise<Uint8Array> {
     const entradas = Object.entries(campos ?? {});
     if (entradas.length === 0) continue;
     const [primeiraChave, primeiroValor] = entradas[0];
-    const alturaPrimeiraLinha = w.medirAlturaCampo(humanizarChave(primeiraChave), formatarValor(primeiroValor));
+    const alturaPrimeiraLinha = ehHorario(primeiroValor)
+      ? 40
+      : w.medirAlturaCampo(humanizarChave(primeiraChave), formatarValor(primeiroValor));
     w.subtituloEtapa(TITULO_ETAPA.get(etapa) ?? etapa, alturaPrimeiraLinha);
     for (const [chave, valor] of entradas) {
-      w.linhaCampo(humanizarChave(chave), formatarValor(valor));
+      if (ehHorario(valor)) {
+        w.tabelaHorario(valor);
+      } else {
+        w.linhaCampo(humanizarChave(chave), formatarValor(valor));
+      }
     }
   }
 
@@ -310,6 +370,77 @@ class Escritor {
       color: COR_BORDA,
     });
     this.y -= 8;
+  }
+
+  // Tabela do horário de funcionamento: rótulo + grade dia × horário, com
+  // cabeçalho, zebra e a coluna "Fechado" em cinza. Mantida junta na mesma
+  // página (a tabela inteira pula pra próxima se não couber).
+  tabelaHorario(dados: Record<string, DiaHorario>) {
+    const COL_DIA = 150;
+    const COL_HORA = 150;
+    const larguraTabela = COL_DIA + COL_HORA;
+    const alturaLinha = 18;
+    const alturaHeader = 20;
+    const alturaRotulo = 16;
+    const alturaTotal = alturaRotulo + alturaHeader + DIAS_SEMANA.length * alturaLinha + 12;
+
+    this.novaPaginaSeNecessario(alturaTotal);
+
+    // Rótulo do campo, no mesmo estilo dos outros rótulos.
+    this.texto("Horário de funcionamento", MARGEM, this.y, this.fonteNegrito, 9, COR_MUTED);
+    this.y -= alturaRotulo;
+
+    const topoTabela = this.y;
+
+    // Cabeçalho.
+    this.pagina.drawRectangle({
+      x: MARGEM,
+      y: topoTabela - alturaHeader,
+      width: larguraTabela,
+      height: alturaHeader,
+      color: COR_PRIMARIA_CLARA,
+    });
+    this.texto("Dia", MARGEM + 8, topoTabela - 14, this.fonteNegrito, 9, COR_PRIMARIA);
+    this.texto("Horário", MARGEM + COL_DIA + 8, topoTabela - 14, this.fonteNegrito, 9, COR_PRIMARIA);
+
+    // Linhas.
+    let y = topoTabela - alturaHeader;
+    DIAS_SEMANA.forEach(([chave, rotulo], i) => {
+      const dia = dados[chave];
+      const fechado = !dia || dia.fechado || !(dia.abre && dia.fecha);
+      if (i % 2 === 1) {
+        this.pagina.drawRectangle({ x: MARGEM, y: y - alturaLinha, width: larguraTabela, height: alturaLinha, color: rgb(0.97, 0.97, 0.97) });
+      }
+      this.texto(rotulo, MARGEM + 8, y - 13, this.fonteRegular, 9, COR_TEXTO);
+      this.texto(
+        textoHorarioDia(dia),
+        MARGEM + COL_DIA + 8,
+        y - 13,
+        this.fonteRegular,
+        9,
+        fechado ? COR_MUTED : COR_TEXTO
+      );
+      y -= alturaLinha;
+    });
+
+    // Bordas da tabela (contorno + divisória entre colunas).
+    const alturaGrade = alturaHeader + DIAS_SEMANA.length * alturaLinha;
+    this.pagina.drawRectangle({
+      x: MARGEM,
+      y: topoTabela - alturaGrade,
+      width: larguraTabela,
+      height: alturaGrade,
+      borderColor: COR_BORDA,
+      borderWidth: 1,
+    });
+    this.pagina.drawLine({
+      start: { x: MARGEM + COL_DIA, y: topoTabela },
+      end: { x: MARGEM + COL_DIA, y: topoTabela - alturaGrade },
+      thickness: 0.5,
+      color: COR_BORDA,
+    });
+
+    this.y = topoTabela - alturaGrade - 12;
   }
 
   // --- rodapé --------------------------------------------------------------
